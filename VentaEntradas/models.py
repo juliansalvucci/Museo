@@ -1,10 +1,10 @@
+from _typeshed import Self
 from django.db import models
 from django.db.models.base import Model
 from django.db.models.deletion import SET_NULL
-from django.db.models.fields import NullBooleanField
+from django.db.models.fields import DateField, NullBooleanField
 from django.utils.translation import ugettext_lazy as _  # conversión de idiomas
-# trae los usuarios logueados en el sistema.
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User # trae los usuarios logueados en el sistema.
 from datetime import date
 
 
@@ -28,86 +28,6 @@ class TipoDevisita(models.Model):
 
     def getNombre(self):
         return self.nombre
-
-
-class DetalleExposicion(models.Model):
-    obra = models.OneToOneField(
-        Obra,
-        verbose_name=_('Obra'),
-        help_text=_('Obra'),
-        related_name='obr',
-        on_delete=models.SET_NULL,
-        blank=False,
-        null=True
-    )
-
-    def buscarDuracionResumidaDeObra(self):
-        return self.obra.getDuracionResumida()
-
-
-class Exposicion(models.Model):
-    fechaFin = models.DateField(
-        _('fechafin'),
-        help_text='Fecha de fin',
-        blank=True
-    )
-    fechaFinReplanificada = models.DateField(
-        _('fechaFinReplanificada'),
-        help_text='Fecha de fin replanificada',
-        blank=True
-    )
-    fechaInicio = models.DateField(
-        _('fechaInicio'),
-        help_text='Fecha de inicio'
-    )
-    fechaInicioReplanificada = models.DateField(
-        _('fechaInicioReplanificada'),
-        help_text='Fecha de inicio replanificada'
-    )
-    horaApertura = models.TimeField(
-        _('horaApertura'),
-        help_text='Hora de apertura'
-    )
-    horaCierre = models.TimeField(
-        _('horaCierre'),
-        help_text='Hora de cierre'
-    )
-    nombre = models.TextField(
-        _('nombre'),
-        help_text=_('Nombre de exposición'),
-        max_length=200,
-    )
-    empleado = models.OneToOneField(
-        Empleado,
-        verbose_name=_('Empleado'),
-        help_text=_('Empleado'),
-        related_name='Empleado',
-        on_delete=models.SET_NULL,
-        blank=False,
-        null=True
-    )
-    detalleExposicion = models.ForeignKey(
-        DetalleExposicion,
-        verbose_name=_('Detalle Exposición'),
-        help_text=_('Detalle Exposición'),
-        related_name='dt',
-        on_delete=models.CASCADE 
-        blank=False,
-        null=True
-    )
-
-    def esVigente(self):
-        if (self.fechaInicio or self.fechaInicioReplanificada >= date.today) and (self.fechaFin or self.fechaFinReplanificada < date.today()):
-            return True
-        else:
-            return False
-
-    def calcularDuracionDeObrasExpuestas(self, detalleExposicion):
-        detalles = detalleExposicion.object.filter(detalleExposicion=self.pk)
-        duracion = 0
-        for detalleExposicion in detalles:
-            duracion += detalleExposicion.buscarDuracionResumidaDeObra()
-        return duracion
 
 
 class Tarifa(models.Model):
@@ -154,7 +74,149 @@ class Tarifa(models.Model):
         return self.monto
 
 
+class Obra(models.Model):
+    nombre = models.CharField(
+        _('nombre'),
+        help_text=_('Nombre de la obra'),
+        max_length=200,
+        unique=True
+    )
+    peso = models.IntegerField(
+        _('peso'),
+        help_text=_('Peso en kg')
+    )
+    valuacion = models.DecimalField(
+        _('valuación'),
+        help_text=_('Valuación en pesos'),
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+    alto = models.IntegerField(
+        _('alto'),
+        help_text=_('Alto de la obra')
+    )
+    ancho = models.IntegerField(
+        _('ancho'),
+        help_text=_('Ancho de la obra')
+    )
+    descripcion = models.TextField(
+        _('descripción'),
+        help_text=_('Descripción de la obra')
+    )
+    fechaCreacion = models.DateField(
+        _('FechaCreacion'),
+        help_text=_('Fecha de creación de la obra')
+    )
+    fechaPrimerIngreso = models.DateField(
+        _('FechaPrimerIngreso'),
+        help_text=_('Fecha de primer ingreso de la obra')
+    )
+    duracionExtendida = models.DurationField(
+        _('DuracionExtendida'),
+        help_text=_('Duración extendida')
+    )
+    duracionResumida = models.DurationField(
+        _('DuracionResumida'),
+        help_text=_('Duración resumida')
+    )
+    
+
+    class Meta:
+        ordering = ['nombre']
+
+    def __str__(self):
+        return '{}'.format(self.nombre)
+
+    def getDuracionResumida(self):
+        return self.duracionResumida
+
+
+class DetalleExposicion(models.Model):
+    obra = models.OneToOneField(
+        Obra,
+        verbose_name=_('Obra'),
+        help_text=_('Obra'),
+        related_name='obr',
+        on_delete=models.SET_NULL,
+        blank=False,
+        null=True
+    )
+
+    def buscarDuracionResumidaDeObra(self):
+        return self.obra.getDuracionResumida()
+        
+
+class Exposicion(models.Model):
+    fechaFin = models.DateField(
+        _('fechafin'),
+        help_text='Fecha de fin',
+        blank=True
+    )
+    fechaFinReplanificada = models.DateField(
+        _('fechaFinReplanificada'),
+        help_text='Fecha de fin replanificada',
+        blank=True
+    )
+    fechaInicio = models.DateField(
+        _('fechaInicio'),
+        help_text='Fecha de inicio'
+    )
+    fechaInicioReplanificada = models.DateField(
+        _('fechaInicioReplanificada'),
+        help_text='Fecha de inicio replanificada'
+    )
+    horaApertura = models.TimeField(
+        _('horaApertura'),
+        help_text='Hora de apertura'
+    )
+    horaCierre = models.TimeField(
+        _('horaCierre'),
+        help_text='Hora de cierre'
+    )
+    nombre = models.TextField(
+        _('nombre'),
+        help_text=_('Nombre de exposición'),
+        max_length=200,
+    )
+    detalleExposicion = models.ForeignKey(
+        DetalleExposicion,
+        verbose_name=_('Detalle Exposición'),
+        help_text=_('Detalle Exposición'),
+        related_name='dt',
+        on_delete=models.CASCADE,
+        blank=False,
+        null=True
+    )
+    empleado = models.ForeignKey(
+        Empleado,
+        verbose_name=_('Empleado'),
+        help_text=_('Empleado'),
+        related_name='e',
+        on_delete=models.SET_NULL,
+        blank=False,
+        null=True
+    )
+
+    def esVigente(self):
+        if (self.fechaInicio or self.fechaInicioReplanificada >= date.today) and (self.fechaFin or self.fechaFinReplanificada < date.today()):
+            return True
+        else:
+            return False
+
+    def calcularDuracionDeObrasExpuestas(self):
+        detalles = DetalleExposicion.object.filter(detalleExposicion=self.pk)
+        duracion = 0
+        for detalle in detalles:
+            duracion += detalle.buscarDuracionResumidaDeObra()
+        return duracion  
+
+
 class Sede(models.Model):
+    horaApetura = models.TimeField()
+    horaCierre = models.TimeField()
+    diaInicio = DateField()
+    diaFin = models.DateField()
     cantMaxVisitantes = models.IntegerField(
         _('cantMaxiVistantes'),
         help_text='Cantidad máxima de Vistantes'
@@ -190,26 +252,30 @@ class Sede(models.Model):
         blank = False,
         null = True
     )
-    def buscarDuracionDeExposiciones(self,Exposicion):
+    def buscarDuracionDeExposiciones(self):
         exposiciones = Exposicion.object.filter(exposicion=self.pk)
-        duracion = 0
-        for Exposicion in exposiciones:
-            duracion += Exposicion.calcularDuracionDeObrasExpuestas()
-        return duracion
+        return exposiciones
 
-    def buscarExposiciones(self,Exposicion):
+    def buscarExposiciones(self,Exposicion): 
         exposiciones = Exposicion.object.filter(exposicion=self.pk)
         return exposiciones
         
     
-    def calcularDuracionAExposicionesVigentes(self,Exposicion):
-        pass
+    def calcularDuracionAExposicionVigente(self):
+        return self.exposicion.calcularDuracionDeObrasExpuestas()
+        
     def getCantMaximaDeVistantes(self):
         return self.cantMaxVisitantes
-    def getTarifas(self,Tarifa):
-        return Tarifa
-    def getTarifasVigentes(self,Tarifa):
-        return Tarifa.esVigente()
+    def getTarifas(self):
+        tarifas = Tarifa.objects.filter(tarifa = self.pk)
+        return tarifas
+    def getTarifasVigentes(self):
+        tarifasVigentes = Tarifa.objects.filter(tarifa = self.pk).esVigente()
+        return tarifasVigentes
+
+
+
+   
 
 class Empleado(models.Model):
     apellido = models.TextField(
@@ -229,6 +295,7 @@ class Empleado(models.Model):
     cuit = models.IntegerField(
         _('cuit'),
         help_text=_('CUIT'),
+        unique=True
     )
     dni = models.IntegerField(
         _('dni'),
@@ -253,11 +320,11 @@ class Empleado(models.Model):
     )
     mail = models.EmailField(
         _('mail'),
-        help_text=_('Mail'),
+        help_text=_('Mail')
     )
     telefono = models.IntegerField(
         _('telefono'),
-        help_text=_('Telefono'),
+        help_text=_('Telefono')
     )
     sede = models.ForeignKey(
         Sede,
@@ -271,8 +338,11 @@ class Empleado(models.Model):
     )
     def getNombre(self):
         return self.nombre
-    def getTarifasVigentes(self,sede):
-        return sede.getTarifasVigentes()
+    def getTarifasVigentes(self):
+        tarifas = Sede.objects.filter(Sede = self.pk).getTarifasVigentes()
+        
+
+
 
 
 
@@ -316,77 +386,9 @@ class Entrada(models.Model):
     )
     def getNumero(self):
         return self.numero
-    
 
-
-class Obra(models.Model):
-    nombre = models.CharField(
-        _('nombre'),
-        help_text=_('Nombre de la obra'),
-        max_length=200,
-    )
-    peso = models.IntegerField(
-        _('peso'),
-        help_text=_('Peso en kg')
-    )
-    valuacion = models.DecimalField(
-        _('valuación'),
-        help_text=_('Valuación en pesos'),
-        max_digits=10,
-        decimal_places=2,
-        default=0
-    )
-    alto = models.IntegerField(
-        _('alto'),
-        help_text=_('Alto de la obra')
-    )
-    ancho = models.IntegerField(
-        _('ancho'),
-        help_text=_('Ancho de la obra')
-    )
-    descripcion = models.TextField(
-        _('descripción'),
-        help_text=_('Descripción de la obra')
-    )
-    fechaCreacion = models.DateField(
-        _('FechaCreacion'),
-        help_text=_('Fecha de creación de la obra')
-    )
-    fechaPrimerIngreso = models.DateField(
-        _('FechaPrimerIngreso'),
-        help_text=_('Fecha de primer ingreso de la obra')
-    )
-    duracionExtendida = models.DurationField(
-        _('DuracionExtendida'),
-        help_text=_('Duración extendida')
-    )
-    duracionResumida = models.DurationField(
-        _('DuracionResumida'),
-        help_text=_('Duración resumida')
-    )
-    empleado = models.OneToOneField(
-        Empleado,
-        verbose_name=_('Empleado'),
-        help_text=_('Empleado'),
-        related_name= 'emp',
-        on_delete=models.SET_NULL,
-        blank = False,
-        null = True   
-
-    )
-
-    class Meta:
-        ordering = ['nombre']
-
-    def __str__(self):
-        return '{}'.format(self.nombre)
-
-    def getDuracionResumida(self):
-        return self.duracionResumida
-
-
-        
-        
+    def __init__(self):
+        pass
 
 class ReservaVisita(models.Model):
     cantidadAlumnos = models.IntegerField(
@@ -435,24 +437,37 @@ class ReservaVisita(models.Model):
     def sonParaFechaYHoraSede(self):
         pass
 
+class GestorVentaEntradas(models.Model):
+    entrada = models.ForeignKey(Entrada)
+    sede = models.ForeignKey(Sede)
+    reservaVisita = models.ForeignKey(ReservaVisita)
+    empleado = models.ForeignKey(Empleado)
+
+
+    def registrarNuevaEntrada(self):
+        return self.entrada.__init__()
+    def buscarCapacidadSede():
+        pass
+    def buscarExposicionVigente():
+        pass
+    def buscarReservasParaAsistir():
+        pass
+    def buscarTarifasSedeEmpleado():
+        pass
+    def calcularDuracionVistaCompleta():
+        pass
+    def generarEntradas():
+        pass
+    def validarLimiteDeVisitantes():
+        pass
+    def buscarVisitantesEnSede():
+        pass
+    def calcularTotalDeVenta():
+        pass
+    def actualizarVisitantesEnPantalla():
+        pass
 
 
 
 
-'''
-class DetalleExposicion(models.Model):
-.... #acá pondrías los atributos/camos
-.... def getDuracionExposicion():
-........ obras = Obras.object.filter(puntero=self.pk)
-........ duracion = 0
-........ for obra in obras:
-............ duracion += obra.getDuracion()
-........ return duracion
-
-[11:56, 6/7/2021] Ema $V1ll4sus0: donde dice "puntero" ahi pone vos 
-el nombre del campo/atributo que le pusiste al puntero, y vas a ver que dice = self.pk, self.pk significa
- el valor del campo de la clave primaria del objeto actual (DetalleExpo), por lo tanto esa linea 
- completa lo que hace es devolverte el listado de obras filtrando solo las que el puntero apunte al 
- detalle que tenés seleccionado (osea al objeto de la clase detalle expo actual)
-´´´
 

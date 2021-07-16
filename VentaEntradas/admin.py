@@ -10,7 +10,7 @@ admin.site.register(Tarifa)
 admin.site.register(Entrada)
 admin.site.register(Obra)
 admin.site.register(ReservaVisita)
-admin.site.register(GestorVentaEntradas)
+
 
 
 

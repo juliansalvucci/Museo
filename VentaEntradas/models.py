@@ -36,7 +36,7 @@ class Sesion(models.Model):
     )
     def getEmpleadoEnSesion(self):
         self.usuario.getEmpleado()
-
+    
 
 class Usuario(models.Model):
     nombre = CharField(
@@ -120,10 +120,13 @@ class Empleado(models.Model):
         null = True
     )
     
-    def getNombre(self):
-        return self.nombre
+    
+
     def getTarifasVigentes(self):
-        tarifas = Sede.objects.filter(Sede = self.pk).getTarifasVigentes()
+        tarifas = self.sede.getTarifasVigentes()
+        return tarifas
+
+   
 
 
 class Sede(models.Model):
@@ -188,10 +191,11 @@ class Sede(models.Model):
         return tarifas
 
     def getTarifasVigentes(self):
+        tarifas = []
         for tarifa in self.tarifa.all():  #Método que solicita colaboración a la clase tarifa para que verifique las tarifas en vigencia.
             if tarifa.esVigente(): #un objeto tarifa verifica si es vigente.   
-                return tarifa   #retorna la tarifa vigente.
-        return None  #Retorna none cuándo ninguna de las tarifas iteradas es vigente.
+                tarifas.append(tarifa)
+        return tarifas  #Retorna none cuándo ninguna de las tarifas iteradas es vigente.
 
 
 class Tarifa(models.Model):

@@ -55,7 +55,7 @@ ROOT_URLCONF = 'Diseño.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['VentraEntradas'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

@@ -126,8 +126,6 @@ class Empleado(models.Model):
         tarifas = self.sede.getTarifasVigentes()
         return tarifas
 
-   
-
 
 class Sede(models.Model):
     horaApetura = models.TimeField(
@@ -171,13 +169,6 @@ class Sede(models.Model):
         blank = False,
         null = True
     )
-    def buscarDuracionDeExposiciones(self):
-        exposiciones = Exposicion.object.filter(exposicion=self.pk)
-        return exposiciones
-
-    def buscarExposiciones(self,Exposicion): 
-        exposiciones = Exposicion.object.filter(exposicion=self.pk)
-        return exposiciones
         
     
     def calcularDuracionAExposicionVigente(self):
@@ -186,14 +177,11 @@ class Sede(models.Model):
     def getCantMaximaDeVistantes(self):
         return self.cantMaxVisitantes
 
-    def getTarifas(self):
-        tarifas = self.tarifa.all()
-        return tarifas
-
     def getTarifasVigentes(self):
         tarifas = []
         for tarifa in self.tarifa.all():  #Método que solicita colaboración a la clase tarifa para que verifique las tarifas en vigencia.
             if tarifa.esVigente(): #un objeto tarifa verifica si es vigente.   
+                tarifas.getMonto()
                 tarifas.append(tarifa)
         return tarifas  #Retorna none cuándo ninguna de las tarifas iteradas es vigente.
 
@@ -234,10 +222,8 @@ class Tarifa(models.Model):
     )
     def esVigente(self):  #Método que pregunta a un determinado objeto de tipo Tarifa si es vigente.
         if (self.fechaInicioVigencia >= date.today()) and (self.fechaFinVigencia < date.today()): #date.today = función que retorna la fecha actual.
-            return True
-        else:
-            return False
-            
+            return Tarifa
+                
     def getMonto(self):
         return self.monto  #Método que retorna el monto de una determinada tarifa.
 
@@ -317,9 +303,7 @@ class Exposicion(models.Model):
 
     def esVigente(self):
         if (self.fechaInicio or self.fechaInicioReplanificada >= date.today) and (self.fechaFin or self.fechaFinReplanificada < date.today()):
-            return True
-        else:
-            return False
+            return Exposicion
 
     def calcularDuracionDeObrasExpuestas(self):
         detalles = DetalleExposicion.object.filter(detalleExposicion=self.pk) #se crea la variable "detalles" la cual contiene todos los objetos de DetalleExposición mediante el puntero. 
@@ -441,7 +425,10 @@ class Entrada(models.Model):
         null = True    
     )
     def getNumero(self):
-        return self.numero
+        for entradas in Entrada.all():
+            return self.numero
+    def sonDeFechaYHoraYPerteneceASede(self):
+        pass
 
 
 class ReservaVisita(models.Model):
@@ -486,8 +473,7 @@ class ReservaVisita(models.Model):
         blank = False,
         null = True
     )
-    def obtenerAlumnosEnReserva(self):
-        return self.cantidadAlumnosConfirmada
+    
     def sonParaFechaYHoraSede(self):
         if (self.horaInicioReal >= self.sede.horaApertura) and (self.fechaFinReal < self.sede.horaCierre):
             return True

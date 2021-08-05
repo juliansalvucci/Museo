@@ -2,7 +2,7 @@ from datetime import DateTimeField
 from VentaEntradas.models import Empleado, Entrada, Exposicion, ReservaVisita, Sede
 from django.shortcuts import render
 
-
+#MÉTODO PRINCIPAL
 def registrarNuevaEntrada(request):
     # agarrar datos vía POST
     sesion = request.POST.get('sesion') # acá te tengo que comentar algo pero lo hacemos en la llamada. Ésto depende de si haces una clase sesion o usas una propia.
@@ -24,7 +24,7 @@ def registrarNuevaEntrada(request):
 
 
     
-    
+#AUXILIARES
 def buscarEmpleadoLogueado(sesion):
     return sesion.getEmpleadoEnSesion()
 
@@ -34,7 +34,7 @@ def getFechaHoraActual():
 def buscarTarifasSedeEmpleado(empleadoLogueado):
     return empleadoLogueado.getTarifaVigente()
 
-
+#MÉTODO PRINCIPAL
 def tomarTarifasSeleccionadas(request):
     #lo primero que hace el método es justamente "tomar tarifa seleccionada"
     tarifas = request.POST.getlist('tarifas[]') # se escribe así ya que es una lista (vector) con varias tarifas seleccionadas
@@ -79,6 +79,27 @@ def buscarReservaParaAsistir(request,id):
     return None
 
 
+def calcularTotalDeVenta(request):
+    total = 0
+    for entradas in Entrada.all():
+        total = Entrada.monto
+    return total
+
+def buscarUltimoNumeroDeEntrada(request):
+    pass
+
+def generarEntradas(request):
+    context = {}
+    return render(request,"index.html",context)
+
+def imprimirEntrada(request):
+    pass
+
+def actualizarVisitantesEnPantalla():
+    pass
+
+def finCu():
+    pass
 
 
 
@@ -86,23 +107,15 @@ def buscarReservaParaAsistir(request,id):
     
 
 
-def generarEntradas(request):
-    context = {}
-    return render(request,"index.html",context)
 
 
 
 
 
-def calcularTotalDeVenta(request):
-    total = 0
-    for entradas in Entrada.all():
-        total = Entrada.monto
-    return total
+
+
         
 
-def buscarUltimoNumeroDeEntrada(request):
-    pass
 
 
     

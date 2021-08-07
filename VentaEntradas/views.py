@@ -11,6 +11,7 @@ def registrarNuevaEntrada(request):
     empleadoLogueado = buscarEmpleadoLogueado(sesion)
     fechaHoraActual = getFechaHoraActual()
     tarifas = buscarTarifasSedeEmpleado(empleadoLogueado)
+    sedeActual = empleadoLogueado.getSede()
     
 
     # metemos los datos obtenidos en un diccionario
@@ -19,6 +20,7 @@ def registrarNuevaEntrada(request):
         'fechaHoraActual': fechaHoraActual,
         'tarifas': tarifas,
         'sesion': sesion,
+        'sedeActual': sedeActual
     }
     return render(request, "mostrarTarifasVigentes.html", context) # ésto sería equivialente al método "mostrarTarifasVigentes() Y solicitar seleccion tarifa"
 
@@ -37,20 +39,25 @@ def buscarTarifasSedeEmpleado(empleadoLogueado):
 #MÉTODO PRINCIPAL
 def tomarTarifasSeleccionadas(request):
     #lo primero que hace el método es justamente "tomar tarifa seleccionada"
-    tarifas = request.POST.getlist('tarifas[]') # se escribe así ya que es una lista (vector) con varias tarifas seleccionadas
+    tarifaSeleccionada = request.POST.get('tarifaSeleccionada') # se escribe así ya que es una lista (vector) con varias tarifas seleccionadas
     # tomamos los datos anteriores para mantenerlos siempre mientras sean necesarios en un futuro
     sesion = request.POST.get('sesion')
+    sedeActual = request.POST.get('sedeActual')
     fechaHoraActual = request.POST.get('fechaHoraActual')
     empleadoLogueado = request.POST.get('empleadoLogueado')
-    duracion = buscarExposicionVigente('sede')
+    
+    sede = Sede.objects.get(nombre = sedeActual)
+    duracion = buscarExposicionVigente(sede)
 
-    exposicionVigente = buscarExposicionVigente(Sede) #no se si lleva como parámetro las tarifas, no se bién cómo funciona el método
+    #mapeo para evitar objeto type string object method not found
     
     context = {
         'empleadoLogueado': empleadoLogueado,
         'fechaHoraActual': fechaHoraActual,
-        'tarifas': tarifas,
+        'tarifaSeleccionada': tarifaSeleccionada,
         'sesion': sesion,
+        'sedeActual': sedeActual,
+        'duracion': duracion
     }
     #fijate que context envía los datos que calcula (exposicion vigente) y arrastra también todos los datos viejos que vienen de las pantallas anteriores.
 
@@ -65,11 +72,15 @@ def buscarExposicionVigente(sede):
 #MÉTODO PRINCIPAL
 def tomarCantidadDeEntradasAEmitir(request):
       
-    tarifas = request.POST.getlist('tarifas[]') 
+    tarifas = request.POST.getlist('tarifas[]')  
+    cantidadDeEntradas = request.POST.get('cantidadDeEntradas')
     sesion = request.POST.get('sesion')
+    sedeActual = request.POST.get('sedeActual')
     fechaHoraActual = request.POST.get('fechaHoraActual')
     empleadoLogueado = request.POST.get('empleadoLogueado')
-    duracion = buscarExposicionVigente('sede')
+    duracion = request.POST.get('duracion')
+    if not validarLimiteDeVisitantes(fechaHoraActual,sedeActual): #Si no puede entrar
+        return (render,"Error.html", {}) 
     exposicionVigente = buscarExposicionVigente(Sede) #no se si lleva como parámetro las tarifas, no se bién cómo funciona el método
     
     context = {
@@ -77,61 +88,62 @@ def tomarCantidadDeEntradasAEmitir(request):
         'fechaHoraActual': fechaHoraActual,
         'tarifas': tarifas,
         'sesion': sesion,
+        #pasar por context
+
     }
-    #fijate que context envía los datos que calcula (exposicion vigente) y arrastra también todos los datos viejos que vienen de las pantallas anteriores.
 
     return render(request, "solicitarCantidadEntradas.html", context)
 
 
 #AUXILIARES
-def validarLimiteDeVisitantes(): #Verifica el númeor de entradas vendidas para ese mismo momento y lo compara con la capacidad de la sede.
-    visitantes = []
-    for entrada in Entrada.all():
-        if Entrada.sonDeFechaYHoraYPerteneceASede():
-            visitantes.append(Entrada)
-    if visitantes.len() < Sede.getCantMaximaDeVistantes():
+def validarLimiteDeVisitantes(fechaHoraActual,sede): #Verifica el númeor de entradas vendidas para ese mismo momento y lo compara con la capacidad de la sede.
+    visitantes = 0
+    for entrada in Entrada.objects.all():
+        if entrada.sonDeFechaYHoraYPerteneceASede(fechaHoraActual,sede):
+            visitantes +=1
+    if visitantes <= sede.getCantMaximaDeVistantes():
         return True
+    else:
+        return False
 
     
-def buscarVisitantesEnSede(): #Obtener cantidad de visitantes en la sede
-    visitantes = []
-    for entrada in Entrada.all():
-        if Entrada.sonDeFechaYHoraYPerteneceASede():
-            visitantes.append(Entrada)
-    return visitantes.len()
-
-
 def buscarReservaParaAsistir(): #Recorrer todas las intancias de reverva y preguntarles si son para fecha y hora sede.
     reservas = []
-    for reserva in ReservaVisita.all():
-        if ReservaVisita.sonParaFechaYHoraSede():
-            reservas.append(ReservaVisita.getCantidadDeAlumnosConfirmada())
+    for reserva in ReservaVisita.objects.all():
+        if reserva.sonParaFechaYHoraSede():
+            reservas.append(reserva.getCantidadDeAlumnosConfirmada())
     return reservas
 
 
-def calcularTotalDeVenta():
-    total = 0
-    for entrada in Entrada.all():
-        total = Entrada.getMonto()
+def calcularTotalDeVenta(cantidadDeEntradas,tarifaSeleccionada):
+    total = cantidadDeEntradas * tarifaSeleccionada
     return total
 
 
 #MÉTODO PRINCIPAL
-def tomarConfirmacionDeVenta():
-    pass
+def tomarConfirmacionDeVenta(request):
+    entradas = request.POST('entradas[]') 
 
 #AUXILIARES
-def buscarUltimoNumeroDeEntrada(): #Buscar el último número de entrada para sumarle 1
-    entradas = []
-    for entrada in Entrada.all():
-        Entrada.getNumero()
-    return numero
+def buscarUltimoNumeroDeEntrada(entrada): #Buscar el último número de entrada para sumarle 1
+    maximo = 0
+    for entrada in Entrada.objects.all():
+        if entrada.getNumero() > maximo:
+            maximo = entrada.getNumero()
+    return maximo + 1
 
 
-def generarEntradas():
-    pass
+def generarEntradas(cantidadDeEntradas):  #for para generar 
+    nuevasEntradas = []
+    for x in range(cantidadDeEntradas):
+       entrada = Entrada.objects.create()  #pasar parámetro
+       #entrada.save() 
+       nuevasEntradas.append(entrada)
+    return nuevasEntradas 
+    
 
-def imprimirEntrada():
+
+def imprimirEntrada(): #pasar por context nuevas entradas
     pass
 
 def actualizarVisitantesEnPantalla(): #Varios mensajes 

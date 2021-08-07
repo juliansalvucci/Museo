@@ -1,0 +1,16 @@
+<form action="../tomarTarifasSeleccionadas/" method="POST">
+    context = {
+        'empleadoLogueado': empleadoLogueado,
+        'fechaHoraActual': fechaHoraActual,
+        'tarifas': tarifas,
+        'sesion': sesion,
+        'sedeActual': sedeActual
+    }
+
+    <label for="empleadoLogueado">Empleado: </label><input type="text" name="empleadoLogueado" value="{{empleadoLogueado}}" readonly="True"> <!--input estatico-->
+    <select name="tarifaSeleccionada">
+        {% for tarifa in tarifas %}
+        <option value="{{tarifa}}">{{tarifa}}</option>
+        {% endfor %}
+    </select>
+</form>

@@ -38,8 +38,9 @@ class Sesion(models.Model):
     #Obtener el empleado en sesion
     def getEmpleadoEnSesion(self):  #FALTA ESTABLECER FECHA FIN
         return self.usuario.getEmpleado()
-        TOP
         
+
+
 class Usuario(models.Model):
     nombre = CharField(
         _('nombre'),
@@ -191,8 +192,6 @@ class Sede(models.Model):
     def validadCantidadMaximaDeVisitantes(sefl):
         pass
     
-
-
 
 class Tarifa(models.Model):
     fechaInicioVigencia = models.DateField(
@@ -447,8 +446,9 @@ class Entrada(models.Model):
     def getMonto(self):
         return self.monto
 
-    def new(self):
-        pass
+    def __init__(self): #completar parámetros
+        self.numero = 0
+        
 
 
 class ReservaVisita(models.Model):
@@ -472,11 +472,11 @@ class ReservaVisita(models.Model):
         _('fechaHoraReserva'),
         help_text=_('Fecha y hora de reserva'),
     )
-    horaInicioReal = models.TimeField(
+    fechaYHoraInicioReal = models.DateTimeField(
         _('horaInicioReal'),
         help_text=_('Hora de inicio real'),
     )
-    horaFinReal = models.TimeField(
+    fechaYHoraFinReal = models.DateTimeField(
         _('horaFinReal'),
         help_text=_('Hora de fin real'),
     )
@@ -494,8 +494,8 @@ class ReservaVisita(models.Model):
         null = True
     )
     
-    def sonParaFechaYHoraSede(self):
-        if (self.horaInicioReal >= self.sede.horaApertura) and (self.fechaFinReal < self.sede.horaCierre):
+    def sonParaFechaYHoraSede(self,fechaHoraActual):
+        if (self.horaInicioReal <= fechaHoraActual) and (self.fechaFinReal > fechaHoraActual):
             return True
         else:
             return False 

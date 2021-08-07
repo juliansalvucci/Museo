@@ -35,11 +35,11 @@ class Sesion(models.Model):
         blank = False,
         null = True
     )
+    #Obtener el empleado en sesion
     def getEmpleadoEnSesion(self):  #FALTA ESTABLECER FECHA FIN
         return self.usuario.getEmpleado()
+        TOP
         
-    
-
 class Usuario(models.Model):
     nombre = CharField(
         _('nombre'),
@@ -59,7 +59,7 @@ class Usuario(models.Model):
         null = True
     )
 
-    def getEmpleado(self):
+    def getEmpleado(self):  #obtener el empleado asociado a ese usuario.
         return self.empleado.getNombre()
 
 
@@ -123,7 +123,6 @@ class Empleado(models.Model):
     )
     
     
-
     def getTarifasVigentes(self):
         tarifas = self.sede.getTarifasVigentes()
         return tarifas
@@ -140,10 +139,6 @@ class Sede(models.Model):
         _('cantMaxiVistantes'),
         help_text='Cantidad máxima de Vistantes'
     )
-    cantMaxVisitantes = models.IntegerField(
-        _('cantMaxiVistantes'),
-        help_text='Cantidad máxima de Vistantes'
-    )
     cantMaxPorGuia = models.IntegerField(
         _('cantMaxPorGuia'),
         help_text='Cantidad máxima de Vistantes por guía'
@@ -153,7 +148,7 @@ class Sede(models.Model):
         help_text=_('Nombre de la sede'),
         max_length=200,
     )
-    exposicion = models.ForeignKey(
+    exposicion = models.ManyToManyField(
         "Exposicion",
         verbose_name=_('Exposición'),
         help_text=_('Exposición'),
@@ -162,7 +157,7 @@ class Sede(models.Model):
         blank = False,
         null = True
     )
-    tarifa = models.ForeignKey(
+    tarifa = models.ManyToManyField(
         "Tarifa",
         verbose_name=_('Tarifa'),
         help_text=_('Tarifa'),
@@ -174,10 +169,10 @@ class Sede(models.Model):
         
     
     def calcularDuracionAExposicionVigente(self):
-        exposiciones = Exposicion.object.filter(Exposicion=self.pk) #se crea la variable "detalles" la cual contiene todos los objetos de DetalleExposición mediante el puntero. 
+        exposiciones = []
         duracion = 0
-        for exposicion in exposiciones: #se recorren todos los detalles asociados y le pide que ejecute el método para buscar la duración resumida de obras.
-            if exposiciones.esVigente():
+        for exposicion in self.exposicion.all(): #se recorren todos los detalles asociados y le pide que ejecute el método para buscar la duración resumida de obras.
+            if exposicion.esVigente():
                 duracion += exposiciones.calcularDuracionDeObrasExpuestas()
         return duracion 
 
@@ -235,17 +230,15 @@ class Tarifa(models.Model):
     )
     def esVigente(self):  #Método que pregunta a un determinado objeto de tipo Tarifa si es vigente.
         if (self.fechaInicioVigencia >= date.today()) and (self.fechaFinVigencia < date.today()): #date.today = función que retorna la fecha actual.
-            return Tarifa
-                
-    def getMonto(self):
-        return self.monto
+            return True
+        else:
+            return False
 
-    def mostrarDatos(self):
-        tarifas = []
-        for tarifa in Tarifa:
-            tarifa.getMonto()
-            self.tipoDeEntrada.getNombre()
-            self.tipoDeVisita.getNombre()
+    def mostrarDatos(self): #Obtener el monto de la entrada por tipo de entrada y tipo de visita
+        montoTarifa = self.monto
+        tipoEntrada = self.tipoDeEntrada.getNombre()
+        tipoVisita = self.tipoDeVisita.getNombre()
+        return (montoTarifa,tipoEntrada,tipoVisita) #recordar que se invoca a partir de los 3 parámetros
 
 
 class TipoDeEntrada(models.Model): 
@@ -302,7 +295,7 @@ class Exposicion(models.Model):
         help_text=_('Nombre de exposición'),
         max_length=200,
     )
-    detalleExposicion = models.ForeignKey(
+    detalleExposicion = models.ManyToManyField(
         "DetalleExposicion",
         verbose_name=_('Detalle Exposición'),
         help_text=_('Detalle Exposición'),
@@ -323,12 +316,13 @@ class Exposicion(models.Model):
 
     def esVigente(self):
         if (self.fechaInicio or self.fechaInicioReplanificada >= date.today) and (self.fechaFin or self.fechaFinReplanificada < date.today()):
-            return Exposicion
+            return True
+        else:
+            return False
 
-    def calcularDuracionDeObrasExpuestas(self):
-        detalles = DetalleExposicion.object.filter(detalleExposicion=self.pk) #se crea la variable "detalles" la cual contiene todos los objetos de DetalleExposición mediante el puntero. 
+    def calcularDuracionDeObrasExpuestas(self): 
         duracion = 0
-        for detalle in detalles: #se recorren todos los detalles asociados y le pide que ejecute el método para buscar la duración resumida de obras.
+        for detalle in self.detalleExposiciones.all(): #se recorren todos los detalles asociados y le pide que ejecute el método para buscar la duración resumida de obras.
             duracion += detalle.buscarDuracionResumidaDeObra()
         return duracion  
 
@@ -445,12 +439,14 @@ class Entrada(models.Model):
         null = True    
     )
     def getNumero(self):
-        for entradas in Entrada.all():
-            return self.numero
+        return self.numero
+
     def sonDeFechaYHoraYPerteneceASede(self):
         pass
+
     def getMonto(self):
         return self.monto
+
     def new(self):
         pass
 

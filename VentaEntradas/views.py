@@ -5,7 +5,7 @@ from django.shortcuts import render
 #MÉTODO PRINCIPAL
 def registrarNuevaEntrada(request):
     # agarrar datos vía POST
-    sesion = request.POST.get('sesion') # acá te tengo que comentar algo pero lo hacemos en la llamada. Ésto depende de si haces una clase sesion o usas una propia.
+    sesion = request.POST.get('sesion') 
     
     # obtenemos los datos necesarios ejecutando las funciones
     empleadoLogueado = buscarEmpleadoLogueado(sesion)
@@ -105,14 +105,13 @@ def buscarReservaParaAsistir(): #Recorrer todas las intancias de reverva y pregu
     reservas = []
     for reserva in ReservaVisita.all():
         if ReservaVisita.sonParaFechaYHoraSede():
-            reservas.append(ReservaVisita)
-    if reservas.len() < Sede.getCantMaximaDeVistantes():
-        return True
+            reservas.append(ReservaVisita.getCantidadDeAlumnosConfirmada())
+    return reservas
 
 
 def calcularTotalDeVenta():
     total = 0
-    for entradas in Entrada.all():
+    for entrada in Entrada.all():
         total = Entrada.getMonto()
     return total
 

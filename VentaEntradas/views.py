@@ -32,7 +32,7 @@ def getFechaHoraActual():
     return DateTimeField.now()
 
 def buscarTarifasSedeEmpleado(empleadoLogueado):
-    return empleadoLogueado.getTarifaVigente()
+    return empleadoLogueado.getTarifasVigentes()
 
 #MÉTODO PRINCIPAL
 def tomarTarifasSeleccionadas(request):
@@ -56,46 +56,86 @@ def tomarTarifasSeleccionadas(request):
 
     return render(request, "solicitarCantidadEntradas.html", context)
 
+#AUXILIAR
 def buscarExposicionVigente(sede):
     duracion = sede.calcularDuracionAExposicionVigente()
     return duracion
+
+
+#MÉTODO PRINCIPAL
+def tomarCantidadDeEntradasAEmitir(request):
+      
+    tarifas = request.POST.getlist('tarifas[]') 
+    sesion = request.POST.get('sesion')
+    fechaHoraActual = request.POST.get('fechaHoraActual')
+    empleadoLogueado = request.POST.get('empleadoLogueado')
+    duracion = buscarExposicionVigente('sede')
+    exposicionVigente = buscarExposicionVigente(Sede) #no se si lleva como parámetro las tarifas, no se bién cómo funciona el método
     
+    context = {
+        'empleadoLogueado': empleadoLogueado,
+        'fechaHoraActual': fechaHoraActual,
+        'tarifas': tarifas,
+        'sesion': sesion,
+    }
+    #fijate que context envía los datos que calcula (exposicion vigente) y arrastra también todos los datos viejos que vienen de las pantallas anteriores.
+
+    return render(request, "solicitarCantidadEntradas.html", context)
+
+
+#AUXILIARES
+def validarLimiteDeVisitantes(): #Verifica el númeor de entradas vendidas para ese mismo momento y lo compara con la capacidad de la sede.
+    visitantes = []
+    for entrada in Entrada.all():
+        if Entrada.sonDeFechaYHoraYPerteneceASede():
+            visitantes.append(Entrada)
+    if visitantes.len() < Sede.getCantMaximaDeVistantes():
+        return True
+
     
-def validarLimiteDeVisitantes(request):
-    capacidadSede = Sede.getCantMaximaDeVistantes
-    visitantes = ReservaVisita.sonParaFechaYHoraSede
-
-    if capacidadSede < visitantes:
-        print("Límite de visitantes excedido")
-   
-def buscarVisitantesEnSede(request):
-    pass
+def buscarVisitantesEnSede(): #Obtener cantidad de visitantes en la sede
+    visitantes = []
+    for entrada in Entrada.all():
+        if Entrada.sonDeFechaYHoraYPerteneceASede():
+            visitantes.append(Entrada)
+    return visitantes.len()
 
 
-def buscarReservaParaAsistir(request,id):
-    for reservas in ReservaVisita.all():
+def buscarReservaParaAsistir(): #Recorrer todas las intancias de reverva y preguntarles si son para fecha y hora sede.
+    reservas = []
+    for reserva in ReservaVisita.all():
         if ReservaVisita.sonParaFechaYHoraSede():
-            return reservas
-    return None
+            reservas.append(ReservaVisita)
+    if reservas.len() < Sede.getCantMaximaDeVistantes():
+        return True
 
 
-def calcularTotalDeVenta(request):
+def calcularTotalDeVenta():
     total = 0
     for entradas in Entrada.all():
-        total = Entrada.monto
+        total = Entrada.getMonto()
     return total
 
-def buscarUltimoNumeroDeEntrada(request):
+
+#MÉTODO PRINCIPAL
+def tomarConfirmacionDeVenta():
     pass
 
-def generarEntradas(request):
-    context = {}
-    return render(request,"index.html",context)
+#AUXILIARES
+def buscarUltimoNumeroDeEntrada(): #Buscar el último número de entrada para sumarle 1
+    entradas = []
+    for entrada in Entrada.all():
+        Entrada.getNumero()
+    return numero
 
-def imprimirEntrada(request):
+
+def generarEntradas():
     pass
 
-def actualizarVisitantesEnPantalla():
+def imprimirEntrada():
+    pass
+
+def actualizarVisitantesEnPantalla(): #Varios mensajes 
     pass
 
 def finCu():

@@ -16,6 +16,7 @@ class Sesion(models.Model):
     fechaFin = DateField(
         _('fechaFin'),
         help_text=_('fecha de fin de sesion'),
+        null=True
     )
     horaInicio = TimeField(
         _('horaInicio'),
@@ -34,8 +35,9 @@ class Sesion(models.Model):
         blank = False,
         null = True
     )
-    def getEmpleadoEnSesion(self):
-        self.usuario.getEmpleado()
+    def getEmpleadoEnSesion(self):  #FALTA ESTABLECER FECHA FIN
+        return self.usuario.getEmpleado()
+        
     
 
 class Usuario(models.Model):
@@ -172,7 +174,14 @@ class Sede(models.Model):
         
     
     def calcularDuracionAExposicionVigente(self):
-        return self.exposicion.calcularDuracionDeObrasExpuestas()
+        exposiciones = Exposicion.object.filter(Exposicion=self.pk) #se crea la variable "detalles" la cual contiene todos los objetos de DetalleExposición mediante el puntero. 
+        duracion = 0
+        for exposicion in exposiciones: #se recorren todos los detalles asociados y le pide que ejecute el método para buscar la duración resumida de obras.
+            if exposiciones.esVigente():
+                duracion += exposiciones.calcularDuracionDeObrasExpuestas()
+        return duracion 
+
+
         
     def getCantMaximaDeVistantes(self):
         return self.cantMaxVisitantes
@@ -181,9 +190,13 @@ class Sede(models.Model):
         tarifas = []
         for tarifa in self.tarifa.all():  #Método que solicita colaboración a la clase tarifa para que verifique las tarifas en vigencia.
             if tarifa.esVigente(): #un objeto tarifa verifica si es vigente.   
-                tarifas.getMonto()
-                tarifas.append(tarifa)
+                tarifas.append(tarifa.getMonto())
         return tarifas  #Retorna none cuándo ninguna de las tarifas iteradas es vigente.
+    
+    def validadCantidadMaximaDeVisitantes(sefl):
+        pass
+    
+
 
 
 class Tarifa(models.Model):
@@ -225,7 +238,14 @@ class Tarifa(models.Model):
             return Tarifa
                 
     def getMonto(self):
-        return self.monto  #Método que retorna el monto de una determinada tarifa.
+        return self.monto
+
+    def mostrarDatos(self):
+        tarifas = []
+        for tarifa in Tarifa:
+            tarifa.getMonto()
+            self.tipoDeEntrada.getNombre()
+            self.tipoDeVisita.getNombre()
 
 
 class TipoDeEntrada(models.Model): 
@@ -429,6 +449,10 @@ class Entrada(models.Model):
             return self.numero
     def sonDeFechaYHoraYPerteneceASede(self):
         pass
+    def getMonto(self):
+        return self.monto
+    def new(self):
+        pass
 
 
 class ReservaVisita(models.Model):
@@ -479,6 +503,10 @@ class ReservaVisita(models.Model):
             return True
         else:
             return False 
+        
+    def getCantidadDeAlumnosConfirmada(self):
+        return self.cantidadAlumnosConfirmada
+
         
 
 

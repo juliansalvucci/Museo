@@ -1,16 +1,17 @@
-<form action="../tomarTarifasSeleccionadas/" method="POST">
-    context = {
-        'empleadoLogueado': empleadoLogueado,
-        'fechaHoraActual': fechaHoraActual,
-        'tarifas': tarifas,
-        'sesion': sesion,
-        'sedeActual': sedeActual
-    }
-
+<form action="../mostrarTarifasVigentes/" method="POST">
+    
     <label for="empleadoLogueado">Empleado: </label><input type="text" name="empleadoLogueado" value="{{empleadoLogueado}}" readonly="True"> <!--input estatico-->
-    <select name="tarifaSeleccionada">
+
+    <label for="fechaHoraActual">Fecha y hora: </label><input type="text" name="fechaHoraActual" value="{{fechaHoraActual}}" readonly="True"> 
+
+    <label for="sesion">Sesion: </label><input type="text" name="sesion" value="{{sesion}}" readonly="True"> 
+
+    <label for="sedeActual">Sede: </label><input type="text" name="sedeActual" value="{{sedeActual}}" readonly="True"> 
+
+    <select name="tarifas">
         {% for tarifa in tarifas %}
         <option value="{{tarifa}}">{{tarifa}}</option>
         {% endfor %}
     </select>
+
 </form>

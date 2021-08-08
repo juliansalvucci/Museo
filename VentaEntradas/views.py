@@ -1,5 +1,5 @@
-from datetime import DateTimeField
 
+from django.db.models.fields import DateTimeField
 from django.http import request
 from VentaEntradas.models import Empleado, Entrada, Exposicion, ReservaVisita, Sede
 from django.shortcuts import render

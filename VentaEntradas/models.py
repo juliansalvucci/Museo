@@ -43,10 +43,12 @@ class Sesion(models.Model):
 class Usuario(models.Model):
     nombre = CharField(
         _('nombre'),
+        max_length=10,
         help_text=_('nombre de usuario'),
     )
     contraseña = CharField(
         _('contraseña'),
+        max_length=10,
         help_text=_('contraseña de usuario'),
     )
     empleado = ForeignKey(
@@ -130,7 +132,6 @@ class Empleado(models.Model):
         return self.sede.getNombre()
 
 
-
 class Sede(models.Model):
     horaApetura = models.TimeField(
         _('horaApetura'),
@@ -152,22 +153,10 @@ class Sede(models.Model):
         max_length=200,
     )
     exposicion = models.ManyToManyField(
-        "Exposicion",
-        verbose_name=_('Exposición'),
-        help_text=_('Exposición'),
-        related_name= 'Exposición',
-        on_delete=models.SET_NULL,
-        blank = False,
-        null = True
+        "Exposicion"
     )
     tarifa = models.ManyToManyField(
-        "Tarifa",
-        verbose_name=_('Tarifa'),
-        help_text=_('Tarifa'),
-        related_name= 'tar',
-        on_delete=models.SET_NULL,
-        blank = False,
-        null = True
+        "Tarifa" 
     )
         
     
@@ -300,13 +289,7 @@ class Exposicion(models.Model):
         max_length=200,
     )
     detalleExposicion = models.ManyToManyField(
-        "DetalleExposicion",
-        verbose_name=_('Detalle Exposición'),
-        help_text=_('Detalle Exposición'),
-        related_name='dt',
-        on_delete=models.CASCADE, #Al borrar el detalle, borrar la exposición. (Agregación)
-        blank=False,
-        null=True
+        "DetalleExposicion"
     )
     empleado = models.OneToOneField(
         "Empleado",

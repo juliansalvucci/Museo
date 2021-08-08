@@ -1,7 +1,7 @@
 
 from django.db.models.fields import DateTimeField
 from django.http import request
-from VentaEntradas.models import Empleado, Entrada, Exposicion, ReservaVisita, Sede
+from VentaEntradas.models import Empleado, Entrada, Exposicion, ReservaVisita, Sede, Sesion
 from django.shortcuts import render
 
 #MÉTODO PRINCIPAL
@@ -10,10 +10,13 @@ def registrarNuevaEntrada(request):
     sesion = request.POST.get('sesion') 
     
     # obtenemos los datos necesarios ejecutando las funciones
+    #sesion = Sesion.objects.get(Sesion)
     empleadoLogueado = buscarEmpleadoLogueado(sesion)
     fechaHoraActual = getFechaHoraActual()
     tarifas = buscarTarifasSedeEmpleado(empleadoLogueado)
     sedeActual = empleadoLogueado.getSede()
+    
+    
     
 
     # metemos los datos obtenidos en un diccionario

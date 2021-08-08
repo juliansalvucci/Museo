@@ -8,7 +8,7 @@ app_name='VentaEntradas'
 urlpatterns = [
     path('registrarNuevaEntrada/', views.registrarNuevaEntrada),
     path('buscarEmpleadoLogueado/', views.buscarEmpleadoLogueado),
-    path('getFechaHoraActual/', views.buscarEmpleadoLogueado),
+    path('getFechaHoraActual/', views.getFechaHoraActual),
     path('buscarTarifasSedeEmpleado/', views.buscarTarifasSedeEmpleado),
     path('tomarTarifasSeleccionadas/', views.tomarTarifasSeleccionadas),
     path('buscarExposicionVigente/', views.buscarExposicionVigente),

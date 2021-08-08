@@ -1,6 +1,8 @@
 from django.contrib import admin
 from VentaEntradas.models import *
 
+admin.site.register(Usuario)
+admin.site.register(Sesion)
 admin.site.register(TipoDeEntrada)
 admin.site.register(TipoDevisita)
 admin.site.register(Empleado)

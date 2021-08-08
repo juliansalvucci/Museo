@@ -9,27 +9,13 @@ from datetime import date
 
 
 class Sesion(models.Model):
-    fechaInicio = DateField(
-        _('fechaInicio'),
-        help_text=_('fecha de inicio de sesión'),
-    )
-    fechaFin = DateField(
-        _('fechaFin'),
-        help_text=_('fecha de fin de sesion'),
-        null=True
-    )
-    horaInicio = TimeField(
-        _('horaInicio'),
-        help_text=_('hora de inicio de sesion'),
-    )
-    horaFin = TimeField(
-        _('horaFin'),
-        help_text=_('hora de fin de sesion'),
-    )
+    fechaInicio = DateField(null=True)
+    fechaFin = DateField(null=True)
+    horaInicio = TimeField(null=True)
+    horaFin = TimeField(null=True)
     usuario = ForeignKey(
         "Usuario",
         verbose_name=_('Usuario'),
-        help_text=_('Usuario'),
         related_name= 'usuario',
         on_delete=models.SET_NULL,
         blank = False,
@@ -41,20 +27,11 @@ class Sesion(models.Model):
         
 
 class Usuario(models.Model):
-    nombre = CharField(
-        _('nombre'),
-        max_length=10,
-        help_text=_('nombre de usuario'),
-    )
-    contraseña = CharField(
-        _('contraseña'),
-        max_length=10,
-        help_text=_('contraseña de usuario'),
-    )
+    nombreUsuario = CharField(max_length=10)
+    contraseña = CharField(max_length=10)
     empleado = ForeignKey(
         "Empleado",
         verbose_name=_('empleado'),
-        help_text=_('Empleado'),
         related_name= 'emp',
         on_delete=models.SET_NULL,
         blank = False,
@@ -66,65 +43,29 @@ class Usuario(models.Model):
 
 
 class Empleado(models.Model):
-    apellido = models.TextField(
-        _('apellido'),
-        help_text=_('Apellido de empleado'),
-        max_length=200,
-    )
-    nombre = models.TextField(
-        _('nombre'),
-        help_text=_('Nombre de empleado'),
-        max_length=200,
-    )
-    codigoValidacion = models.IntegerField(
-        _('CodigoValidacion'),
-        help_text=_('Código de validación'),
-    )
-    cuit = models.IntegerField(
-        _('cuit'),
-        help_text=_('CUIT'),
-        unique=True
-    )
-    dni = models.IntegerField(
-        _('dni'),
-        help_text=_('DNI'),
-    )
-    calle = models.TextField(
-        _('calle'),
-        help_text=_('Calle'),
-        max_length=200,
-    )
-    numero = models.IntegerField(
-        _('numero'),
-        help_text=_('Número'),
-    )
-    fechaIngreso = models.DateField(
-        _('fechaIngreso'),
-        help_text=_('Fecha de ingreso'),
-    )
-    fechaNacimiento = models.DateField(
-        _('fechaNacimiento'),
-        help_text=_('Fecha de nacimiento'),
-    )
-    mail = models.EmailField(
-        _('mail'),
-        help_text=_('Mail')
-    )
-    telefono = models.IntegerField(
-        _('telefono'),
-        help_text=_('Telefono')
-    )
+    apellido = models.CharField(max_length=200)
+    nombre = models.CharField(max_length=200)
+    codigoValidacion = models.IntegerField()
+    cuit = models.IntegerField(unique=True)
+    dni = models.IntegerField()
+    calle = models.CharField(max_length=200)
+    numero = models.IntegerField()
+    fechaIngreso = models.DateField()
+    fechaNacimiento = models.DateField()
+    mail = models.EmailField()
+    telefono = models.IntegerField()
     sede = ForeignKey(
         "Sede",
         verbose_name=_('Sede'),
-        help_text=_('Sede'),
         related_name= 'sd',
         on_delete=models.SET_NULL,
         blank = False,
         null = True
     )
     
-    
+    def getNombre(self):
+        return self.nombre
+
     def getTarifasVigentes(self):
         return self.sede.getTarifasVigentes()
 
@@ -133,31 +74,15 @@ class Empleado(models.Model):
 
 
 class Sede(models.Model):
-    horaApetura = models.TimeField(
-        _('horaApetura'),
-    )
-    horaCierre = models.TimeField()
-    diaInicio = DateField()
-    diaFin = models.DateField()
-    cantMaxVisitantes = models.IntegerField(
-        _('cantMaxiVistantes'),
-        help_text='Cantidad máxima de Vistantes'
-    )
-    cantMaxPorGuia = models.IntegerField(
-        _('cantMaxPorGuia'),
-        help_text='Cantidad máxima de Vistantes por guía'
-    )
-    nombre = models.TextField(
-        _('nombre'),
-        help_text=_('Nombre de la sede'),
-        max_length=200,
-    )
-    exposicion = models.ManyToManyField(
-        "Exposicion"
-    )
-    tarifa = models.ManyToManyField(
-        "Tarifa" 
-    )
+    horaApetura = models.TimeField(null=True)
+    horaCierre = models.TimeField(null=True)
+    diaInicio = DateField(null=True)
+    diaFin = models.DateField(null=True)
+    cantMaxVisitantes = models.IntegerField()
+    cantMaxPorGuia = models.IntegerField()
+    nombre = models.TextField(max_length=200,)
+    exposicion = models.ManyToManyField("Exposicion")
+    tarifa = models.ManyToManyField("Tarifa" )
         
     
     def calcularDuracionAExposicionVigente(self):
@@ -188,17 +113,9 @@ class Sede(models.Model):
     
 
 class Tarifa(models.Model):
-    fechaInicioVigencia = models.DateField(
-        _('FechaIncioVigencia'),
-        help_text='Fecha de incio de vigencia'
-    )
-    fechaFinVigencia = models.DateField(
-        _('fechaFinVigencia'),
-        help_text='Fecha de fin de vigencia',
-    )
+    fechaInicioVigencia = models.DateField()
+    fechaFinVigencia = models.DateField()
     monto = models.DecimalField(
-        _('monto'),
-        help_text=_('Monto de la tarifa'),
         max_digits=15, 
         decimal_places=2,
         default = 0
@@ -206,7 +123,6 @@ class Tarifa(models.Model):
     tipoDeEntrada = models.OneToOneField(
         "TipoDeEntrada",
         verbose_name=_('Tipo de entrada'),
-        help_text=_('Tipo de entrada'),
         related_name= 'TipoDeEntrada',
         on_delete=models.SET_NULL,
         blank = False,
@@ -215,7 +131,6 @@ class Tarifa(models.Model):
     tipoDeVisita = models.OneToOneField(
         "TipoDevisita",
         verbose_name=_('Tipo de visita'),
-        help_text=_('Tipo de visita'),
         related_name= 'TipoDeVisita',
         on_delete=models.SET_NULL,
         blank = False,
@@ -235,66 +150,33 @@ class Tarifa(models.Model):
 
 
 class TipoDeEntrada(models.Model): 
-    nombre = models.TextField(
-        _('nombre'),
-        help_text=_('Nombre de tipo de entrada'),
-        max_length=200,
-    )
+    nombre = models.CharField(max_length=200)
 
     def getNombre(self): #Retorna el nombre un tipo de entrada.
         return self.nombre
 
 
 class TipoDevisita(models.Model):
-    nombre = models.TextField(
-        _('nombre'),
-        help_text=_('Nombre de tipo de visita'),
-        max_length=200,
-    )
+    nombre = models.CharField(max_length=200)
 
     def getNombre(self):  #Retorna el nombre un tipo de visita.
         return self.nombre
 
 
 class Exposicion(models.Model):
-    fechaFin = models.DateField(
-        _('fechafin'),
-        help_text='Fecha de fin',
-        blank=True
-    )
-    fechaFinReplanificada = models.DateField(
-        _('fechaFinReplanificada'),
-        help_text='Fecha de fin replanificada',
-        blank=True
-    )
-    fechaInicio = models.DateField(
-        _('fechaInicio'),
-        help_text='Fecha de inicio'
-    )
-    fechaInicioReplanificada = models.DateField(
-        _('fechaInicioReplanificada'),
-        help_text='Fecha de inicio replanificada'
-    )
-    horaApertura = models.TimeField(
-        _('horaApertura'),
-        help_text='Hora de apertura'
-    )
-    horaCierre = models.TimeField(
-        _('horaCierre'),
-        help_text='Hora de cierre'
-    )
-    nombre = models.CharField(
-        _('nombre'),
-        help_text=_('Nombre de exposición'),
-        max_length=200,
-    )
+    fechaFin = models.DateField()
+    fechaFinReplanificada = models.DateField()
+    fechaInicio = models.DateField()
+    fechaInicioReplanificada = models.DateField()
+    horaApertura = models.TimeField(null=True)
+    horaCierre = models.TimeField(null=True)
+    nombre = models.CharField(max_length=200)
     detalleExposicion = models.ManyToManyField(
         "DetalleExposicion"
     )
     empleado = models.OneToOneField(
         "Empleado",
         verbose_name=_('Empleado'),
-        help_text=_('Empleado'),
         related_name='e',
         on_delete=models.SET_NULL,
         blank=False,
@@ -318,7 +200,6 @@ class DetalleExposicion(models.Model):
     obra = models.OneToOneField(
         "Obra",
         verbose_name=_('Obra'),
-        help_text=_('Obra'),
         related_name='obr',
         on_delete=models.SET_NULL,
         blank=False,
@@ -330,87 +211,36 @@ class DetalleExposicion(models.Model):
         
 
 class Obra(models.Model):
-    nombre = models.CharField(
-        _('nombre'),
-        help_text=_('Nombre de la obra'),
-        max_length=200,
-        unique=True   
-    )
-    peso = models.IntegerField(
-        _('peso'),
-        help_text=_('Peso en kg')
-    )
+    nombre = models.CharField(max_length=200, unique=True)
+    peso = models.IntegerField()
     valuacion = models.DecimalField(
-        _('valuación'),
-        help_text=_('Valuación en pesos'),
         max_digits=10,
         decimal_places=2,
         default=0
     )
-    alto = models.IntegerField(
-        _('alto'),
-        help_text=_('Alto de la obra')
-    )
-    ancho = models.IntegerField(
-        _('ancho'),
-        help_text=_('Ancho de la obra')
-    )
-    descripcion = models.TextField(
-        _('descripción'),
-        help_text=_('Descripción de la obra')
-    )
-    fechaCreacion = models.DateField(
-        _('FechaCreacion'),
-        help_text=_('Fecha de creación de la obra')
-    )
-    fechaPrimerIngreso = models.DateField(
-        _('FechaPrimerIngreso'),
-        help_text=_('Fecha de primer ingreso de la obra')
-    )
-    duracionExtendida = models.DurationField(
-        _('DuracionExtendida'),
-        help_text=_('Duración extendida')
-    )
-    duracionResumida = models.DurationField(
-        _('DuracionResumida'),
-        help_text=_('Duración resumida')
-    )
+    alto = models.IntegerField()
+    ancho = models.IntegerField()
+    descripcion = models.TextField()
+    fechaCreacion = models.DateField()
+    fechaPrimerIngreso = models.DateField()
+    duracionExtendida = models.DurationField(null=True)
+    duracionResumida = models.DurationField(null=True)
     
-
-    class Meta:
-        ordering = ['nombre']
-
-    def __str__(self):
-        return '{}'.format(self.nombre)
-
     def getDuracionResumida(self): #Método para obtener la duración resumida de una determinada obra.
         return self.duracionResumida 
 
 
 class Entrada(models.Model):
-    fechaVenta = models.DateField(
-        _('fechaVenta'),
-        help_text='Fecha de venta'
-    )
-    horaVenta = models.TimeField(
-        _('horaVenta'),
-        help_text='Hora de venta'
-    )
+    fechaYHoraVenta = models.DateTimeField(null=True)
     monto = models.DecimalField(
-        _('monto'),
-        help_text=_('Monto de la entrada'),
         max_digits=15, 
         decimal_places=2,
         default = 0
     )
-    numero = models.IntegerField(
-        _('numero'),
-        help_text='Numero de entrada'
-    )
+    numero = models.IntegerField()
     sede = models.ForeignKey(
         "Sede",
         verbose_name=_('Sede'),
-        help_text=_('Sede'),
         related_name= 'sede',
         on_delete=models.SET_NULL,
         blank = False,
@@ -419,7 +249,6 @@ class Entrada(models.Model):
     tarifa = models.ForeignKey(
         "Tarifa",
         verbose_name=_('Tarifa'),
-        help_text=_('Tarifa'),
         related_name= 'tarifa',
         on_delete=models.SET_NULL,
         blank = False,
@@ -428,8 +257,11 @@ class Entrada(models.Model):
     def getNumero(self):
         return self.numero
 
-    def sonDeFechaYHoraYPerteneceASede(self):
-        pass
+    def sonDeFechaYHoraYPerteneceASede(self,fechaHoraActual):
+        if (self.fechaYHoraVenta <= fechaHoraActual) and (self.fechaYHoraVenta > fechaHoraActual):
+            return True
+        else:
+            return False 
 
     def getMonto(self):
         return self.monto
@@ -439,42 +271,17 @@ class Entrada(models.Model):
         
 
 class ReservaVisita(models.Model):
-    cantidadAlumnos = models.IntegerField(
-        _('cantidadAlumnos'),
-        help_text=_('Cantidad de alumnos'),
-    )
-    cantidadAlumnosConfirmada = models.IntegerField(
-        _('cantidadAlumnosConfirmada'),
-        help_text=_('Cantidad de alumnos confirmada'),
-    )
-    duracionEstimada = models.IntegerField(
-        _('duracionEstimada'),
-        help_text=_('Duración estimada'),
-    )
-    fechaHoraCreacion = models.DateTimeField(
-        _('fechaHoraCreacion'),
-        help_text=_('Fecha y hora de creación'),
-    )
-    fechaHoraReserva = models.DateTimeField(
-        _('fechaHoraReserva'),
-        help_text=_('Fecha y hora de reserva'),
-    )
-    fechaYHoraInicioReal = models.DateTimeField(
-        _('horaInicioReal'),
-        help_text=_('Hora de inicio real'),
-    )
-    fechaYHoraFinReal = models.DateTimeField(
-        _('horaFinReal'),
-        help_text=_('Hora de fin real'),
-    )
-    numeroReserva = models.IntegerField(
-        _('numeroRserva'),
-        help_text=_('Numero de reserva'),
-    )
+    cantidadAlumnos = models.IntegerField()
+    cantidadAlumnosConfirmada = models.IntegerField()
+    duracionEstimada = models.IntegerField()
+    fechaHoraCreacion = models.DateTimeField()
+    fechaHoraReserva = models.DateTimeField()
+    fechaYHoraInicioReal = models.DateTimeField(null=True)
+    fechaYHoraFinReal = models.DateTimeField(null=True)
+    numeroReserva = models.IntegerField()
     sede = models.ForeignKey(
         "Sede",
         verbose_name=_('Sede'),
-        help_text=_('Sede'),
         related_name= 'Sede',
         on_delete=models.SET_NULL,
         blank = False,

@@ -40,7 +40,6 @@ class Sesion(models.Model):
         return self.usuario.getEmpleado()
         
 
-
 class Usuario(models.Model):
     nombre = CharField(
         _('nombre'),
@@ -125,8 +124,11 @@ class Empleado(models.Model):
     
     
     def getTarifasVigentes(self):
-        tarifas = self.sede.getTarifasVigentes()
-        return tarifas
+        return self.sede.getTarifasVigentes()
+
+    def getSede(self):
+        return self.sede.getNombre()
+
 
 
 class Sede(models.Model):
@@ -189,8 +191,11 @@ class Sede(models.Model):
                 tarifas.append(tarifa.getMonto())
         return tarifas  #Retorna none cuándo ninguna de las tarifas iteradas es vigente.
     
-    def validadCantidadMaximaDeVisitantes(sefl):
+    def validadCantidadMaximaDeVisitantes(self):
         pass
+
+    def getNombre(self):
+        return self.nombre
     
 
 class Tarifa(models.Model):
@@ -449,7 +454,6 @@ class Entrada(models.Model):
     def __init__(self): #completar parámetros
         self.numero = 0
         
-
 
 class ReservaVisita(models.Model):
     cantidadAlumnos = models.IntegerField(

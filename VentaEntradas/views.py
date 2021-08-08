@@ -1,4 +1,6 @@
 from datetime import DateTimeField
+
+from django.http import request
 from VentaEntradas.models import Empleado, Entrada, Exposicion, ReservaVisita, Sede
 from django.shortcuts import render
 
@@ -46,10 +48,11 @@ def tomarTarifasSeleccionadas(request):
     fechaHoraActual = request.POST.get('fechaHoraActual')
     empleadoLogueado = request.POST.get('empleadoLogueado')
     
+    #mapeo para evitar objeto type string object method not found
     sede = Sede.objects.get(nombre = sedeActual)
     duracion = buscarExposicionVigente(sede)
 
-    #mapeo para evitar objeto type string object method not found
+    
     
     context = {
         'empleadoLogueado': empleadoLogueado,
@@ -72,7 +75,7 @@ def buscarExposicionVigente(sede):
 #MÉTODO PRINCIPAL
 def tomarCantidadDeEntradasAEmitir(request):
       
-    tarifas = request.POST.getlist('tarifas[]')  
+    tarifaSeleccionada = request.POST.get('tarifaSeleccionada') 
     cantidadDeEntradas = request.POST.get('cantidadDeEntradas')
     sesion = request.POST.get('sesion')
     sedeActual = request.POST.get('sedeActual')
@@ -86,10 +89,11 @@ def tomarCantidadDeEntradasAEmitir(request):
     context = {
         'empleadoLogueado': empleadoLogueado,
         'fechaHoraActual': fechaHoraActual,
-        'tarifas': tarifas,
+        'tarifaSeleccionada': tarifaSeleccionada,
         'sesion': sesion,
-        #pasar por context
-
+        'cantidadDeEntradas': cantidadDeEntradas,
+        'duracion': duracion,
+        'exposicionVigente': exposicionVigente
     }
 
     return render(request, "solicitarCantidadEntradas.html", context)
@@ -122,28 +126,51 @@ def calcularTotalDeVenta(cantidadDeEntradas,tarifaSeleccionada):
 
 #MÉTODO PRINCIPAL
 def tomarConfirmacionDeVenta(request):
-    entradas = request.POST('entradas[]') 
+    tarifaSeleccionada = request.POST.get('tarifaSeleccionada')  
+    cantidadDeEntradas = request.POST.get('cantidadDeEntradas')
+    sesion = request.POST.get('sesion')
+    sedeActual = request.POST.get('sedeActual')
+    fechaHoraActual = request.POST.get('fechaHoraActual')
+    empleadoLogueado = request.POST.get('empleadoLogueado')
+    duracion = request.POST.get('duracion')
+    if not validarLimiteDeVisitantes(fechaHoraActual,sedeActual): #Si no puede entrar
+        return (render,"Error.html", {}) 
+    exposicionVigente = buscarExposicionVigente(Sede) #no se si lleva como parámetro las tarifas, no se bién cómo funciona el método
+    
+    context = {
+        'empleadoLogueado': empleadoLogueado,
+        'fechaHoraActual': fechaHoraActual,
+        'tarifaSeleccionada': tarifaSeleccionada,
+        'sesion': sesion,
+        'cantidadDeEntradas': cantidadDeEntradas,
+        'duracion': duracion,
+        'exposicionVigente': exposicionVigente
+    }
+
+    return render(request, "solicitarCantidadEntradas.html", context)
 
 #AUXILIARES
 def buscarUltimoNumeroDeEntrada(entrada): #Buscar el último número de entrada para sumarle 1
     maximo = 0
+    nuevoNumero = 0
     for entrada in Entrada.objects.all():
         if entrada.getNumero() > maximo:
             maximo = entrada.getNumero()
-    return maximo + 1
+            nuevoNumero = maximo + 1
+    return nuevoNumero 
 
 
 def generarEntradas(cantidadDeEntradas):  #for para generar 
     nuevasEntradas = []
     for x in range(cantidadDeEntradas):
        entrada = Entrada.objects.create()  #pasar parámetro
-       #entrada.save() 
+       #entrada.save() probar que se crea antes de guardarlo en la base de datos
        nuevasEntradas.append(entrada)
     return nuevasEntradas 
     
 
 
-def imprimirEntrada(): #pasar por context nuevas entradas
+def imprimirEntrada(nuevaEntrada): #pasar por context nuevas entradas
     pass
 
 def actualizarVisitantesEnPantalla(): #Varios mensajes 

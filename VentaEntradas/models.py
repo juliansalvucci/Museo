@@ -80,7 +80,7 @@ class Sede(models.Model):
     diaFin = models.DateField(blank = True, null = True)
     cantMaxVisitantes = models.IntegerField()
     cantMaxPorGuia = models.IntegerField(blank = True, null = True)
-    nombre = models.TextField(max_length=200,)
+    nombre = models.TextField(max_length=200)
     exposicion = models.ManyToManyField("Exposicion",blank = True, null = True)
     tarifa = models.ManyToManyField("Tarifa",blank = True, null = True )
         

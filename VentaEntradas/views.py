@@ -7,15 +7,14 @@ from datetime import datetime
 def registrarNuevaEntrada(request):
 
     
-    sesion = Sesion.objects.get() #Tomo la sesión vigente.
+    sesion = Sesion.objects.get() #Tomo la primera sesión que encuentra el gestor.
 
     # obtenemos los datos necesarios ejecutando las funciones subsiguientes.
    
-    empleadoLogueado = buscarEmpleadoLogueado(sesion) 
-    empleadoLogueado = Empleado.objects.get()
-    fechaHoraActual = getFechaHoraActual()
-    sedeActual = empleadoLogueado.getSede()
-    tarifas = Tarifa.objects.get()
+    empleadoLogueado = buscarEmpleadoLogueado(sesion)  # nombre del empleado actual
+    empleadoLogueado = Empleado.objects.get(nombre = empleadoLogueado) # mapear nombre de empleado actual a objeto
+    fechaHoraActual = getFechaHoraActual() # obtener fecha y hora actual del servidor
+    sedeActual = empleadoLogueado.getSede() # obtener el nombre de la sede actual
     tarifas = buscarTarifasSedeEmpleado(empleadoLogueado)
     
     
@@ -35,7 +34,7 @@ def registrarNuevaEntrada(request):
     
 #AUXILIARES
 def buscarEmpleadoLogueado(sesion): #a partir de la sesion obtengo el empleado logueado
-    return sesion.getEmpleadoEnSesion()
+    return sesion.getEmpleadoEnSesion()  #obtiene el nombre del empleado en sesión haciendo SesionActual->Usuario->Empleado->getNombre()
 
 def getFechaHoraActual(): #Obtener fecha y hora actual
     return datetime.now()
@@ -84,9 +83,9 @@ def tomarCantidadDeEntradasAEmitir(request):
     fechaHoraActual = request.POST.get('fechaHoraActual')
     empleadoLogueado = request.POST.get('empleadoLogueado')
     duracion = request.POST.get('duracion')
-    if not validarLimiteDeVisitantes(fechaHoraActual,sedeActual): #Si no puede entrar
+    if not validarLimiteDeVisitantes(fechaHoraActual,sedeActual, cantidadDeEntradas): #Si no puede entrar
         return (render,"Error.html", {}) 
-    exposicionVigente = buscarExposicionVigente(sedeActual) #no se si lleva como parámetro las tarifas, no se bién cómo funciona el método
+    exposicionVigente = buscarExposicionVigente(sedeActual) #no se si lleva como parámetro las tarifas, no se bién cómo funciona el método -- No, no lleva las tarifas, lleva solo la sede, según la sede actual sabe que exposiciónes hay, la tarifa es la misma, solo cambia la tarifa segun el tipoReserva, que creo que eso no les toca
     
     context = {
         'empleadoLogueado': empleadoLogueado,
@@ -102,12 +101,12 @@ def tomarCantidadDeEntradasAEmitir(request):
 
 
 #AUXILIARES
-def validarLimiteDeVisitantes(entrada,fechaHoraActual,sedeActual): #Verifica el número de entradas vendidas para ese mismo momento y lo compara con la capacidad de la sede.
+def validarLimiteDeVisitantes(fechaHoraActual,sedeActual, cantidadDeEntradas): #Verifica el número de entradas vendidas para ese mismo momento y lo compara con la capacidad de la sede.
     visitantes = 0
     for entrada in Entrada.objects.all():
-        if entrada.sonDeFechaYHoraYPerteneceASede(fechaHoraActual,sedeActual):
+        if entrada.sonDeFechaYHoraYPerteneceASede(entrada,fechaHoraActual,sedeActual):
             visitantes +=1
-    if visitantes <= sedeActual.getCantMaximaDeVistantes():
+    if visitantes + cantidadDeEntradas <= sedeActual.getCantMaximaDeVistantes():
         return True
     else:
         return False
@@ -181,6 +180,7 @@ def actualizarVisitantesEnPantalla(): #Varios mensajes
 
 def finCu():
     pass
+
 
 
 

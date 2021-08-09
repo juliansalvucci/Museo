@@ -6,17 +6,19 @@ from datetime import datetime
 #MÉTODO PRINCIPAL(Inicia línea de vida)
 def registrarNuevaEntrada(request):
 
-    sesion = 1
-    sesion = Sesion.objects.get(pk=1) #Tomo la sesión vigente.
+    
+    sesion = Sesion.objects.get() #Tomo la sesión vigente.
 
     # obtenemos los datos necesarios ejecutando las funciones subsiguientes.
    
     empleadoLogueado = buscarEmpleadoLogueado(sesion) 
     empleadoLogueado = Empleado.objects.get()
     fechaHoraActual = getFechaHoraActual()
+    sedeActual = empleadoLogueado.getSede()
     tarifas = Tarifa.objects.get()
     tarifas = buscarTarifasSedeEmpleado(empleadoLogueado)
-    sedeActual = empleadoLogueado.getSede()
+    
+    
     
     
     # metemos los datos obtenidos en un diccionario.
@@ -75,7 +77,6 @@ def buscarExposicionVigente(sede):
 
 #MÉTODO PRINCIPAL
 def tomarCantidadDeEntradasAEmitir(request):
-      
     tarifaSeleccionada = request.POST.get('tarifaSeleccionada') 
     cantidadDeEntradas = request.POST.get('cantidadDeEntradas')
     sesion = request.POST.get('sesion')
@@ -85,7 +86,7 @@ def tomarCantidadDeEntradasAEmitir(request):
     duracion = request.POST.get('duracion')
     if not validarLimiteDeVisitantes(fechaHoraActual,sedeActual): #Si no puede entrar
         return (render,"Error.html", {}) 
-    exposicionVigente = buscarExposicionVigente(sedeActual ) #no se si lleva como parámetro las tarifas, no se bién cómo funciona el método
+    exposicionVigente = buscarExposicionVigente(sedeActual) #no se si lleva como parámetro las tarifas, no se bién cómo funciona el método
     
     context = {
         'empleadoLogueado': empleadoLogueado,
@@ -97,14 +98,14 @@ def tomarCantidadDeEntradasAEmitir(request):
         'exposicionVigente': exposicionVigente
     }
 
-    return render(request, "solicitarCantidadEntradas.html", context)
+    return render(request,"solicitarCantidadEntradas.html", context)
 
 
 #AUXILIARES
-def validarLimiteDeVisitantes(fechaHoraActual,sedeActual): #Verifica el número de entradas vendidas para ese mismo momento y lo compara con la capacidad de la sede.
+def validarLimiteDeVisitantes(entrada,fechaHoraActual,sedeActual): #Verifica el número de entradas vendidas para ese mismo momento y lo compara con la capacidad de la sede.
     visitantes = 0
     for entrada in Entrada.objects.all():
-        if entrada.sonDeFechaYHoraYPerteneceASede(fechaHoraActual,sedeActual ):
+        if entrada.sonDeFechaYHoraYPerteneceASede(fechaHoraActual,sedeActual):
             visitantes +=1
     if visitantes <= sedeActual.getCantMaximaDeVistantes():
         return True

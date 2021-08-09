@@ -22,7 +22,7 @@ class Sesion(models.Model):
         null = True
     )
     #Obtener el empleado en sesion
-    def getEmpleadoEnSesion(self):  #FALTA ESTABLECER FECHA FIN
+    def getEmpleadoEnSesion(self):  
         return self.usuario.getEmpleado()
         
 

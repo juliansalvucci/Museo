@@ -1,28 +1,24 @@
-
-from django.db.models.fields import DateTimeCheckMixin, DateTimeField
 from django.http import request
 from VentaEntradas.models import Empleado, Entrada, Exposicion, ReservaVisita, Sede, Sesion, Tarifa
 from django.shortcuts import render
 from datetime import datetime
 
-#MÉTODO PRINCIPAL
+#MÉTODO PRINCIPAL(Inicia línea de vida)
 def registrarNuevaEntrada(request):
-    # agarrar datos vía POST
+
     sesion = 1
-    sesion = Sesion.objects.get(pk=1)
-    
-    
-    # obtenemos los datos necesarios ejecutando las funciones
-    empleadoLogueado = buscarEmpleadoLogueado(sesion)
+    sesion = Sesion.objects.get(pk=1) #Tomo la sesión vigente.
+
+    # obtenemos los datos necesarios ejecutando las funciones subsiguientes.
+    empleadoLogueado = Empleado.objects.get()
+    empleadoLogueado = buscarEmpleadoLogueado(sesion) 
     fechaHoraActual = getFechaHoraActual()
     tarifas = Tarifa.objects.get()
-    tarifas = buscarTarifasSedeEmpleado(empleadoLogueado)
+    tarifas = buscarTarifasSedeEmpleado(sesion)
     sedeActual = empleadoLogueado.getSede()
     
     
-    
-
-    # metemos los datos obtenidos en un diccionario
+    # metemos los datos obtenidos en un diccionario.
     context = {
         'empleadoLogueado': empleadoLogueado,
         'fechaHoraActual': fechaHoraActual,
@@ -30,25 +26,25 @@ def registrarNuevaEntrada(request):
         'sesion': sesion,
         'sedeActual': sedeActual
     }
-    return render(request, "mostrarTarifasVigentes.html", context) # ésto sería equivialente al método "mostrarTarifasVigentes() Y solicitar seleccion tarifa"
+    return render(request,"mostrarTarifasVigentes.html", context) # ésto sería equivialente al método "mostrarTarifasVigentes() Y solicitar seleccion tarifa"
 
 
     
 #AUXILIARES
-def buscarEmpleadoLogueado(sesion):
+def buscarEmpleadoLogueado(sesion): #a partir de la sesion obtengo el empleado logueado
     return sesion.getEmpleadoEnSesion()
 
-def getFechaHoraActual():
+def getFechaHoraActual(): #Obtener fecha y hora actual
     return datetime.now()
 
-def buscarTarifasSedeEmpleado(sesion,empleadoLogueado):
-    empleadoLogueado = sesion.usuario.getEmpleado()
+def buscarTarifasSedeEmpleado(sesion):  #Obtener las tarifas vigentes vinculadas a un empleado
+    empleadoLogueado = sesion.getEmpleadoEnSesion()
     return empleadoLogueado.getTarifasVigentes()
 
 #MÉTODO PRINCIPAL
 def tomarTarifasSeleccionadas(request):
     #lo primero que hace el método es justamente "tomar tarifa seleccionada"
-    tarifaSeleccionada = request.POST.get('tarifaSeleccionada') # se escribe así ya que es una lista (vector) con varias tarifas seleccionadas
+    tarifaSeleccionada = request.POST.get('tarifaSeleccionada') # 
     # tomamos los datos anteriores para mantenerlos siempre mientras sean necesarios en un futuro
     sesion = request.POST.get('sesion')
     sedeActual = request.POST.get('sedeActual')
@@ -59,8 +55,6 @@ def tomarTarifasSeleccionadas(request):
     sede = Sede.objects.get(nombre = sedeActual)
     duracion = buscarExposicionVigente(sede)
 
-    
-    
     context = {
         'empleadoLogueado': empleadoLogueado,
         'fechaHoraActual': fechaHoraActual,
@@ -107,7 +101,7 @@ def tomarCantidadDeEntradasAEmitir(request):
 
 
 #AUXILIARES
-def validarLimiteDeVisitantes(fechaHoraActual,sede): #Verifica el númeor de entradas vendidas para ese mismo momento y lo compara con la capacidad de la sede.
+def validarLimiteDeVisitantes(fechaHoraActual,sede): #Verifica el número de entradas vendidas para ese mismo momento y lo compara con la capacidad de la sede.
     visitantes = 0
     for entrada in Entrada.objects.all():
         if entrada.sonDeFechaYHoraYPerteneceASede(fechaHoraActual,sede):
@@ -177,8 +171,9 @@ def generarEntradas(cantidadDeEntradas):  #for para generar
     
 
 
-def imprimirEntrada(nuevaEntrada): #pasar por context nuevas entradas
-    pass
+def imprimirEntrada(request): #pasar por context nuevas entradas
+    entradas = generarEntradas(cantidadDeEntradas)
+
 
 def actualizarVisitantesEnPantalla(): #Varios mensajes 
     pass

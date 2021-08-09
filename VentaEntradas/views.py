@@ -10,11 +10,12 @@ def registrarNuevaEntrada(request):
     sesion = Sesion.objects.get(pk=1) #Tomo la sesión vigente.
 
     # obtenemos los datos necesarios ejecutando las funciones subsiguientes.
-    empleadoLogueado = Empleado.objects.get()
+   
     empleadoLogueado = buscarEmpleadoLogueado(sesion) 
+    empleadoLogueado = Empleado.objects.get()
     fechaHoraActual = getFechaHoraActual()
     tarifas = Tarifa.objects.get()
-    tarifas = buscarTarifasSedeEmpleado(sesion)
+    tarifas = buscarTarifasSedeEmpleado(empleadoLogueado)
     sedeActual = empleadoLogueado.getSede()
     
     
@@ -37,8 +38,7 @@ def buscarEmpleadoLogueado(sesion): #a partir de la sesion obtengo el empleado l
 def getFechaHoraActual(): #Obtener fecha y hora actual
     return datetime.now()
 
-def buscarTarifasSedeEmpleado(sesion):  #Obtener las tarifas vigentes vinculadas a un empleado
-    empleadoLogueado = sesion.getEmpleadoEnSesion()
+def buscarTarifasSedeEmpleado(empleadoLogueado):  #Obtener las tarifas vigentes vinculadas a un empleado
     return empleadoLogueado.getTarifasVigentes()
 
 #MÉTODO PRINCIPAL
@@ -52,7 +52,7 @@ def tomarTarifasSeleccionadas(request):
     empleadoLogueado = request.POST.get('empleadoLogueado')
     
     #mapeo para evitar objeto type string object method not found
-    sede = Sede.objects.get(nombre = sedeActual)
+    sede = Sede.objects.get()
     duracion = buscarExposicionVigente(sede)
 
     context = {
@@ -85,7 +85,7 @@ def tomarCantidadDeEntradasAEmitir(request):
     duracion = request.POST.get('duracion')
     if not validarLimiteDeVisitantes(fechaHoraActual,sedeActual): #Si no puede entrar
         return (render,"Error.html", {}) 
-    exposicionVigente = buscarExposicionVigente(Sede) #no se si lleva como parámetro las tarifas, no se bién cómo funciona el método
+    exposicionVigente = buscarExposicionVigente(sedeActual ) #no se si lleva como parámetro las tarifas, no se bién cómo funciona el método
     
     context = {
         'empleadoLogueado': empleadoLogueado,
@@ -101,12 +101,12 @@ def tomarCantidadDeEntradasAEmitir(request):
 
 
 #AUXILIARES
-def validarLimiteDeVisitantes(fechaHoraActual,sede): #Verifica el número de entradas vendidas para ese mismo momento y lo compara con la capacidad de la sede.
+def validarLimiteDeVisitantes(fechaHoraActual,sedeActual): #Verifica el número de entradas vendidas para ese mismo momento y lo compara con la capacidad de la sede.
     visitantes = 0
     for entrada in Entrada.objects.all():
-        if entrada.sonDeFechaYHoraYPerteneceASede(fechaHoraActual,sede):
+        if entrada.sonDeFechaYHoraYPerteneceASede(fechaHoraActual,sedeActual ):
             visitantes +=1
-    if visitantes <= sede.getCantMaximaDeVistantes():
+    if visitantes <= sedeActual.getCantMaximaDeVistantes():
         return True
     else:
         return False
@@ -172,7 +172,7 @@ def generarEntradas(cantidadDeEntradas):  #for para generar
 
 
 def imprimirEntrada(request): #pasar por context nuevas entradas
-    entradas = generarEntradas(cantidadDeEntradas)
+    pass
 
 
 def actualizarVisitantesEnPantalla(): #Varios mensajes 

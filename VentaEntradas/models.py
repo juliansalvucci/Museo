@@ -9,16 +9,16 @@ from datetime import date
 
 
 class Sesion(models.Model):
-    fechaInicio = DateField(null=True)
-    fechaFin = DateField(null=True)
-    horaInicio = TimeField(null=True)
-    horaFin = TimeField(null=True)
+    fechaInicio = DateField(blank = True, null = True)
+    fechaFin = DateField(blank = True, null = True)
+    horaInicio = TimeField(blank = True, null = True)
+    horaFin = TimeField(blank = True, null = True)
     usuario = ForeignKey(
         "Usuario",
         verbose_name=_('Usuario'),
         related_name= 'usuario',
         on_delete=models.SET_NULL,
-        blank = False,
+        blank = True,
         null = True
     )
     #Obtener el empleado en sesion
@@ -34,7 +34,7 @@ class Usuario(models.Model):
         verbose_name=_('empleado'),
         related_name= 'emp',
         on_delete=models.SET_NULL,
-        blank = False,
+        blank = True,
         null = True
     )
 
@@ -45,21 +45,21 @@ class Usuario(models.Model):
 class Empleado(models.Model):
     apellido = models.CharField(max_length=200)
     nombre = models.CharField(max_length=200)
-    codigoValidacion = models.IntegerField()
-    cuit = models.IntegerField(unique=True)
-    dni = models.IntegerField()
-    calle = models.CharField(max_length=200)
-    numero = models.IntegerField()
-    fechaIngreso = models.DateField()
-    fechaNacimiento = models.DateField()
-    mail = models.EmailField()
-    telefono = models.IntegerField()
+    codigoValidacion = models.IntegerField(blank = True, null = True)
+    cuit = models.IntegerField(blank = True, null = True)
+    dni = models.IntegerField(blank = True, null = True)
+    calle = models.CharField(max_length=10, blank = True, null = True)
+    numero = models.IntegerField(blank = True, null = True)
+    fechaIngreso = models.DateField(blank = True, null = True)
+    fechaNacimiento = models.DateField(blank = True, null = True)
+    mail = models.EmailField(blank = True, null = True)
+    telefono = models.IntegerField(blank = True, null = True)
     sede = ForeignKey(
         "Sede",
         verbose_name=_('Sede'),
         related_name= 'sd',
         on_delete=models.SET_NULL,
-        blank = False,
+        blank = True,
         null = True
     )
     
@@ -74,15 +74,15 @@ class Empleado(models.Model):
 
 
 class Sede(models.Model):
-    horaApetura = models.TimeField(null=True)
-    horaCierre = models.TimeField(null=True)
-    diaInicio = DateField(null=True)
-    diaFin = models.DateField(null=True)
+    horaApetura = models.TimeField(blank = True, null = True)
+    horaCierre = models.TimeField(blank = True, null = True)
+    diaInicio = DateField(blank = True, null = True)
+    diaFin = models.DateField(blank = True, null = True)
     cantMaxVisitantes = models.IntegerField()
-    cantMaxPorGuia = models.IntegerField()
+    cantMaxPorGuia = models.IntegerField(blank = True, null = True)
     nombre = models.TextField(max_length=200,)
-    exposicion = models.ManyToManyField("Exposicion")
-    tarifa = models.ManyToManyField("Tarifa" )
+    exposicion = models.ManyToManyField("Exposicion",blank = True, null = True)
+    tarifa = models.ManyToManyField("Tarifa",blank = True, null = True )
         
     
     def calcularDuracionAExposicionVigente(self):
@@ -164,22 +164,20 @@ class TipoDevisita(models.Model):
 
 
 class Exposicion(models.Model):
-    fechaFin = models.DateField()
-    fechaFinReplanificada = models.DateField()
-    fechaInicio = models.DateField()
-    fechaInicioReplanificada = models.DateField()
-    horaApertura = models.TimeField(null=True)
-    horaCierre = models.TimeField(null=True)
-    nombre = models.CharField(max_length=200)
-    detalleExposicion = models.ManyToManyField(
-        "DetalleExposicion"
-    )
+    fechaFin = models.DateField(blank = True, null = True)
+    fechaFinReplanificada = models.DateField(blank = True, null = True)
+    fechaInicio = models.DateField(blank = True, null = True)
+    fechaInicioReplanificada = models.DateField(blank = True, null = True)
+    horaApertura = models.TimeField(blank = True, null = True)
+    horaCierre = models.TimeField(blank = True, null = True)
+    nombre = models.CharField(max_length=200,blank = True, null = True)
+    detalleExposicion = models.ManyToManyField("DetalleExposicion",blank = True, null = True)
     empleado = models.OneToOneField(
         "Empleado",
         verbose_name=_('Empleado'),
         related_name='e',
         on_delete=models.SET_NULL,
-        blank=False,
+        blank=True,
         null=True
     )
 
@@ -202,7 +200,7 @@ class DetalleExposicion(models.Model):
         verbose_name=_('Obra'),
         related_name='obr',
         on_delete=models.SET_NULL,
-        blank=False,
+        blank=True,
         null=True
     )
 
@@ -211,31 +209,35 @@ class DetalleExposicion(models.Model):
         
 
 class Obra(models.Model):
-    nombre = models.CharField(max_length=200, unique=True)
-    peso = models.IntegerField()
+    nombre = models.CharField(max_length=200, unique=True,blank = True, null = True)
+    peso = models.IntegerField(blank = True, null = True)
     valuacion = models.DecimalField(
         max_digits=10,
         decimal_places=2,
-        default=0
+        default=0,
+        blank = True, 
+        null = True
     )
-    alto = models.IntegerField()
-    ancho = models.IntegerField()
-    descripcion = models.TextField()
-    fechaCreacion = models.DateField()
-    fechaPrimerIngreso = models.DateField()
-    duracionExtendida = models.DurationField(null=True)
-    duracionResumida = models.DurationField(null=True)
+    alto = models.IntegerField(blank = True, null = True)
+    ancho = models.IntegerField(blank = True, null = True)
+    descripcion = models.TextField(blank = True, null = True)
+    fechaCreacion = models.DateField(blank = True, null = True)
+    fechaPrimerIngreso = models.DateField(blank = True, null = True)
+    duracionExtendida = models.DurationField(blank = True, null = True)
+    duracionResumida = models.DurationField(blank = True, null = True)
     
     def getDuracionResumida(self): #Método para obtener la duración resumida de una determinada obra.
         return self.duracionResumida 
 
 
 class Entrada(models.Model):
-    fechaYHoraVenta = models.DateTimeField(null=True)
+    fechaYHoraVenta = models.DateTimeField(blank = True, null = True)
     monto = models.DecimalField(
         max_digits=15, 
         decimal_places=2,
-        default = 0
+        default = 0,
+        blank = True, 
+        null = True
     )
     numero = models.IntegerField()
     sede = models.ForeignKey(
@@ -243,7 +245,7 @@ class Entrada(models.Model):
         verbose_name=_('Sede'),
         related_name= 'sede',
         on_delete=models.SET_NULL,
-        blank = False,
+        blank = True,
         null = True
     )
     tarifa = models.ForeignKey(
@@ -251,7 +253,7 @@ class Entrada(models.Model):
         verbose_name=_('Tarifa'),
         related_name= 'tarifa',
         on_delete=models.SET_NULL,
-        blank = False,
+        blank = True,
         null = True    
     )
     def getNumero(self):
@@ -266,25 +268,25 @@ class Entrada(models.Model):
     def getMonto(self):
         return self.monto
 
-    def __init__(self): #completar parámetros
-        self.numero = 0
+    #def __init__(self): #completar parámetros
+        #self.numero = 0
         
 
 class ReservaVisita(models.Model):
-    cantidadAlumnos = models.IntegerField()
-    cantidadAlumnosConfirmada = models.IntegerField()
-    duracionEstimada = models.IntegerField()
-    fechaHoraCreacion = models.DateTimeField()
-    fechaHoraReserva = models.DateTimeField()
-    fechaYHoraInicioReal = models.DateTimeField(null=True)
-    fechaYHoraFinReal = models.DateTimeField(null=True)
+    cantidadAlumnos = models.IntegerField(blank = True, null = True)
+    cantidadAlumnosConfirmada = models.IntegerField(blank = True, null = True)
+    duracionEstimada = models.IntegerField(blank = True, null = True)
+    fechaHoraCreacion = models.DateTimeField(blank = True, null = True)
+    fechaHoraReserva = models.DateTimeField(blank = True, null = True)
+    fechaYHoraInicioReal = models.DateTimeField(blank = True, null = True)
+    fechaYHoraFinReal = models.DateTimeField(blank = True, null = True)
     numeroReserva = models.IntegerField()
     sede = models.ForeignKey(
         "Sede",
         verbose_name=_('Sede'),
         related_name= 'Sede',
         on_delete=models.SET_NULL,
-        blank = False,
+        blank = True,
         null = True
     )
     
@@ -296,6 +298,7 @@ class ReservaVisita(models.Model):
         
     def getCantidadDeAlumnosConfirmada(self):
         return self.cantidadAlumnosConfirmada
+
 
         
 

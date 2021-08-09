@@ -1,18 +1,21 @@
 
-from django.db.models.fields import DateTimeField
+from django.db.models.fields import DateTimeCheckMixin, DateTimeField
 from django.http import request
-from VentaEntradas.models import Empleado, Entrada, Exposicion, ReservaVisita, Sede, Sesion
+from VentaEntradas.models import Empleado, Entrada, Exposicion, ReservaVisita, Sede, Sesion, Tarifa
 from django.shortcuts import render
+from datetime import datetime
 
 #MÉTODO PRINCIPAL
 def registrarNuevaEntrada(request):
     # agarrar datos vía POST
-    sesion = request.POST.get('sesion') 
+    sesion = 1
+    sesion = Sesion.objects.get(pk=1)
+    
     
     # obtenemos los datos necesarios ejecutando las funciones
-    #sesion = Sesion.objects.get(Sesion)
     empleadoLogueado = buscarEmpleadoLogueado(sesion)
     fechaHoraActual = getFechaHoraActual()
+    tarifas = Tarifa.objects.get()
     tarifas = buscarTarifasSedeEmpleado(empleadoLogueado)
     sedeActual = empleadoLogueado.getSede()
     
@@ -36,9 +39,10 @@ def buscarEmpleadoLogueado(sesion):
     return sesion.getEmpleadoEnSesion()
 
 def getFechaHoraActual():
-    return DateTimeField.now()
+    return datetime.now()
 
-def buscarTarifasSedeEmpleado(empleadoLogueado):
+def buscarTarifasSedeEmpleado(sesion,empleadoLogueado):
+    empleadoLogueado = sesion.usuario.getEmpleado()
     return empleadoLogueado.getTarifasVigentes()
 
 #MÉTODO PRINCIPAL

@@ -1,5 +1,5 @@
-<form action="../mostrarTarifasVigentes/" method="POST">
-    
+<form action="../tomarTarifasSeleccionadas/" method="POST">
+    {% csrf_token %}
     <label for="empleadoLogueado">Empleado: </label><input type="text" name="empleadoLogueado" value="{{empleadoLogueado}}" readonly="True"> <!--input estatico-->
     <br>
     <label for="fechaHoraActual">Fecha y hora: </label><input type="text" name="fechaHoraActual" value="{{fechaHoraActual}}" readonly="True"> 
@@ -8,10 +8,12 @@
     <br>
     <label for="sedeActual">Sede: </label><input type="text" name="sedeActual" value="{{sedeActual}}" readonly="True"> 
     <br>
-    <label for="tarifas">Tarifas: </label>
-    <select name="tarifas">
+    <label for="tarifaSeleccionada">Tarifas: </label>
+    <select name="tarifaSeleccionada">
         {% for tarifa in tarifas %}
-        <option value="{{tarifas}}">{{tarifas}}</option>
+        <option value="{{tarifa.monto}}">{{tarifa.tipoDeVisita.nombre}}-{{tarifa.monto}}</option>
         {% endfor %}
     </select>
+    <br>
+    <input type="submit" value="OK">
 </form>

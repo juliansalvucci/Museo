@@ -1,4 +1,5 @@
-<form action="../tomarTarifasSeleccionadas/" method="POST">
+<form action="../solicitarCantidadEntradas/" method="POST">
+    {% csrf_token %}
     <label for="empleadoLogueado">Empleado: </label><input type="text" name="empleadoLogueado" value="{{empleadoLogueado}}" readonly="True"> <!--input estatico-->
 
     <label for="fechaHoraActual">Fecha y hora: </label><input type="text" name="fechaHoraActual" value="{{fechaHoraActual}}" readonly="True"> 
@@ -7,7 +8,11 @@
     <br>
     <label for="sedeActual">Sede: </label><input type="text" name="sedeActual" value="{{sedeActual}}" readonly="True"> 
     <br>
-    <label for="tarifaSeleccionada>Tarifa: </label><input type="text" name="tarifaSeleccionada" value="{{tarifaSeleccionada}}" readonly="True"> 
+    <label for="tarifaSeleccionada">Tarifa: </label><input type="text" name="tarifaSeleccionada" value="{{tarifaSeleccionada}}" readonly="True"> 
     <br>
     <label for="duracion">Duracion: </label><input type="text" name="duracion" value="{{duracion}}" readonly="True"> 
+    <br>
+    <label for="cantidadDeEntradas">Cantidad de entradas: </label><input type="text" name="cantidadDeEntradas" value="{{cantidadDeEntradas}}"> 
+    <br>
+    <input type="submit">
 </form>

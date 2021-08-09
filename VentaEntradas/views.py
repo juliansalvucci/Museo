@@ -1,6 +1,6 @@
 from django.http import request
 from VentaEntradas.models import Empleado, Entrada, Exposicion, ReservaVisita, Sede, Sesion, Tarifa
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from datetime import datetime
 
 #MÉTODO PRINCIPAL(Inicia línea de vida)
@@ -51,6 +51,7 @@ def tomarTarifasSeleccionadas(request):
     sedeActual = request.POST.get('sedeActual')
     fechaHoraActual = request.POST.get('fechaHoraActual')
     empleadoLogueado = request.POST.get('empleadoLogueado')
+    cantidadDeEntradas = request.POST.get('cantidadDeEntradas')
     
     #mapeo para evitar objeto type string object method not found
     sede = Sede.objects.get()
@@ -62,7 +63,8 @@ def tomarTarifasSeleccionadas(request):
         'tarifaSeleccionada': tarifaSeleccionada,
         'sesion': sesion,
         'sedeActual': sedeActual,
-        'duracion': duracion
+        'duracion': duracion,
+        'cantidadDeEntradas':cantidadDeEntradas
     }
     #fijate que context envía los datos que calcula (exposicion vigente) y arrastra también todos los datos viejos que vienen de las pantallas anteriores.
 
@@ -134,6 +136,7 @@ def tomarConfirmacionDeVenta(request):
     fechaHoraActual = request.POST.get('fechaHoraActual')
     empleadoLogueado = request.POST.get('empleadoLogueado')
     duracion = request.POST.get('duracion')
+    entradasNuevas = generarEntradas(cantidadDeEntradas)
     if not validarLimiteDeVisitantes(fechaHoraActual,sedeActual): #Si no puede entrar
         return (render,"Error.html", {}) 
     exposicionVigente = buscarExposicionVigente(Sede) #no se si lleva como parámetro las tarifas, no se bién cómo funciona el método
@@ -145,7 +148,8 @@ def tomarConfirmacionDeVenta(request):
         'sesion': sesion,
         'cantidadDeEntradas': cantidadDeEntradas,
         'duracion': duracion,
-        'exposicionVigente': exposicionVigente
+        'exposicionVigente': exposicionVigente,
+        'entradasNuevas':entradasNuevas
     }
 
     return render(request, "solicitarCantidadEntradas.html", context)
@@ -172,7 +176,7 @@ def generarEntradas(cantidadDeEntradas):  #for para generar
 
 
 def imprimirEntrada(request): #pasar por context nuevas entradas
-    pass
+    return render(render,'entradas.html',{'entradasNuevas'})
 
 
 def actualizarVisitantesEnPantalla(): #Varios mensajes 

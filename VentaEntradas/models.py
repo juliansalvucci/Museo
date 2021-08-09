@@ -5,7 +5,7 @@ from django.db.models.fields import CharField, DateField, TimeField
 from django.db.models.fields.related import ForeignKey
 from django.utils.translation import ugettext_lazy as _  # conversión de idiomas
 from django.contrib.auth.models import User # trae los usuarios logueados en el sistema.
-from datetime import date
+from datetime import date, datetime, timedelta
 
 
 class Sesion(models.Model):
@@ -86,11 +86,10 @@ class Sede(models.Model):
         
     
     def calcularDuracionAExposicionVigente(self):
-        exposiciones = []
-        duracion = 0
+        duracion = timedelta(0)
         for exposicion in self.exposicion.all(): #se recorren todos los detalles asociados y le pide que ejecute el método para buscar la duración resumida de obras.
             if exposicion.esVigente():
-                duracion += exposiciones.calcularDuracionDeObrasExpuestas()
+                duracion += exposicion.calcularDuracionDeObrasExpuestas()
         return duracion 
 
 
@@ -101,8 +100,10 @@ class Sede(models.Model):
     def getTarifasVigentes(self):
         tarifas = []
         for tarifa in self.tarifa.all():  #Método que solicita colaboración a la clase tarifa para que verifique las tarifas en vigencia.
+           
             if tarifa.esVigente(): #un objeto tarifa verifica si es vigente.   
-                tarifas.append(tarifa.getMonto())
+  
+                tarifas.append(tarifa)
         return tarifas  #Retorna none cuándo ninguna de las tarifas iteradas es vigente.
     
     def validadCantidadMaximaDeVisitantes(self):
@@ -137,10 +138,13 @@ class Tarifa(models.Model):
         null = True
     )
     def esVigente(self):  #Método que pregunta a un determinado objeto de tipo Tarifa si es vigente.
-        if (self.fechaInicioVigencia >= date.today()) and (self.fechaFinVigencia < date.today()): #date.today = función que retorna la fecha actual.
+        if (self.fechaInicioVigencia <= date.today()) and (self.fechaFinVigencia > date.today()): #date.today = función que retorna la fecha actual.
             return True
         else:
             return False
+    
+    def getMonto(self):
+        return self.monto
 
     def mostrarDatos(self): #Obtener el monto de la entrada por tipo de entrada y tipo de visita
         montoTarifa = self.monto
@@ -182,14 +186,14 @@ class Exposicion(models.Model):
     )
 
     def esVigente(self):
-        if (self.fechaInicio or self.fechaInicioReplanificada >= date.today) and (self.fechaFin or self.fechaFinReplanificada < date.today()):
+        if (self.fechaInicio <= date.today()) and (self.fechaFin > date.today()):
             return True
         else:
             return False
 
     def calcularDuracionDeObrasExpuestas(self): 
-        duracion = 0
-        for detalle in self.detalleExposiciones.all(): #se recorren todos los detalles asociados y le pide que ejecute el método para buscar la duración resumida de obras.
+        duracion = timedelta(0)
+        for detalle in self.detalleExposicion.all(): #se recorren todos los detalles asociados y le pide que ejecute el método para buscar la duración resumida de obras.
             duracion += detalle.buscarDuracionResumidaDeObra()
         return duracion  
 

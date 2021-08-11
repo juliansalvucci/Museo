@@ -6,7 +6,7 @@ from django.db.models.fields.related import ForeignKey
 from django.utils.translation import ugettext_lazy as _  # conversión de idiomas
 from django.contrib.auth.models import User # trae los usuarios logueados en el sistema.
 from datetime import date, datetime, timedelta
-
+from django.utils.dateparse import parse_datetime
 
 class Sesion(models.Model):
     fechaInicio = DateField(blank = True, null = True)
@@ -264,10 +264,11 @@ class Entrada(models.Model):
         return self.numero
 
     def sonDeFechaYHoraYPerteneceASede(self,fechaHoraActual):
-        if (self.fechaYHoraVenta <= fechaHoraActual) and (self.fechaYHoraVenta > fechaHoraActual):
+        if (self.fechaYHoraVenta.replace(tzinfo=None) <= fechaHoraActual.replace(tzinfo=None)) and (self.fechaYHoraVenta.replace(tzinfo=None) > fechaHoraActual.replace(tzinfo=None)):
             return True
         else:
             return False 
+            
 
     def getMonto(self):
         return self.monto

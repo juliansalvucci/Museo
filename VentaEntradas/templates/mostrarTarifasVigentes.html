@@ -1,4 +1,4 @@
-<form action="../tomarTarifasSeleccionadas/" method="POST">
+<form action="../tomarTarifasSeleccionadas/" method="POST"> <!--próximo método de la vista-->
     {% csrf_token %}
     <label for="empleadoLogueado">Empleado: </label><input type="text" name="empleadoLogueado" value="{{empleadoLogueado}}" readonly="True"> <!--input estatico-->
     <br>
@@ -11,7 +11,7 @@
     <label for="tarifaSeleccionada">Tarifas: </label>
     <select name="tarifaSeleccionada">
         {% for tarifa in tarifas %}
-        <option value="{{tarifa.monto}}">{{tarifa.tipoDeVisita.nombre}}-{{tarifa.monto}}</option>
+        <option value="{{tarifa.monto}}">{{tarifa.tipoDeEntrada.nombre}}-{{tarifa.tipoDeVisita.nombre}}-{{tarifa.monto}}</option>
         {% endfor %}
     </select>
     <br>

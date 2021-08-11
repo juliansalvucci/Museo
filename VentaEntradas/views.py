@@ -1,7 +1,10 @@
 from django.http import request
+from django.utils.dateparse import parse_datetime
 from VentaEntradas.models import Empleado, Entrada, Exposicion, ReservaVisita, Sede, Sesion, Tarifa
 from django.shortcuts import redirect, render
 from datetime import datetime
+
+
 
 #MÉTODO PRINCIPAL(Inicia línea de vida)
 def registrarNuevaEntrada(request):
@@ -38,6 +41,7 @@ def buscarEmpleadoLogueado(sesion): #a partir de la sesion obtengo el empleado l
 
 def getFechaHoraActual(): #Obtener fecha y hora actual
     return datetime.now()
+    
 
 def buscarTarifasSedeEmpleado(empleadoLogueado):  #Obtener las tarifas vigentes vinculadas a un empleado
     return empleadoLogueado.getTarifasVigentes()
@@ -79,16 +83,18 @@ def buscarExposicionVigente(sede):
 #MÉTODO PRINCIPAL
 def tomarCantidadDeEntradasAEmitir(request):
     tarifaSeleccionada = request.POST.get('tarifaSeleccionada') 
-    cantidadDeEntradas = request.POST.get('cantidadDeEntradas')
     sesion = request.POST.get('sesion')
     sedeActual = request.POST.get('sedeActual')
     fechaHoraActual = request.POST.get('fechaHoraActual')
+    #fechaHoraActual = parse_datetime(fechaHoraActual)
     empleadoLogueado = request.POST.get('empleadoLogueado')
     duracion = request.POST.get('duracion')
+    cantidadDeEntradas = request.POST.get('cantidadDeEntradas')
     if not validarLimiteDeVisitantes(fechaHoraActual,sedeActual, cantidadDeEntradas): #Si no puede entrar
         return (render,"Error.html", {}) 
     exposicionVigente = buscarExposicionVigente(sedeActual) #no se si lleva como parámetro las tarifas, no se bién cómo funciona el método -- No, no lleva las tarifas, lleva solo la sede, según la sede actual sabe que exposiciónes hay, la tarifa es la misma, solo cambia la tarifa segun el tipoReserva, que creo que eso no les toca
-    
+    totalVenta = calcularTotalDeVenta()
+
     context = {
         'empleadoLogueado': empleadoLogueado,
         'fechaHoraActual': fechaHoraActual,
@@ -96,17 +102,18 @@ def tomarCantidadDeEntradasAEmitir(request):
         'sesion': sesion,
         'cantidadDeEntradas': cantidadDeEntradas,
         'duracion': duracion,
-        'exposicionVigente': exposicionVigente
+        'exposicionVigente': exposicionVigente,
+        'totalVenta':totalVenta
     }
 
-    return render(request,"solicitarCantidadEntradas.html", context)
+    return render(request,"tomarCantidadDeEntradas.html", context)
 
 
 #AUXILIARES
 def validarLimiteDeVisitantes(fechaHoraActual,sedeActual, cantidadDeEntradas): #Verifica el número de entradas vendidas para ese mismo momento y lo compara con la capacidad de la sede.
     visitantes = 0
     for entrada in Entrada.objects.all():
-        if entrada.sonDeFechaYHoraYPerteneceASede(entrada,fechaHoraActual,sedeActual):
+        if entrada.sonDeFechaYHoraYPerteneceASede(fechaHoraActual):
             visitantes +=1
     if visitantes + cantidadDeEntradas <= sedeActual.getCantMaximaDeVistantes():
         return True
@@ -140,7 +147,8 @@ def tomarConfirmacionDeVenta(request):
     if not validarLimiteDeVisitantes(fechaHoraActual,sedeActual): #Si no puede entrar
         return (render,"Error.html", {}) 
     exposicionVigente = buscarExposicionVigente(Sede) #no se si lleva como parámetro las tarifas, no se bién cómo funciona el método
-    
+    totalVenta = request.POST.get('totalVenta')
+
     context = {
         'empleadoLogueado': empleadoLogueado,
         'fechaHoraActual': fechaHoraActual,
@@ -149,7 +157,8 @@ def tomarConfirmacionDeVenta(request):
         'cantidadDeEntradas': cantidadDeEntradas,
         'duracion': duracion,
         'exposicionVigente': exposicionVigente,
-        'entradasNuevas':entradasNuevas
+        'entradasNuevas':entradasNuevas,
+        'totalVenta':totalVenta
     }
 
     return render(request, "solicitarCantidadEntradas.html", context)
@@ -176,7 +185,30 @@ def generarEntradas(cantidadDeEntradas):  #for para generar
 
 
 def imprimirEntrada(request): #pasar por context nuevas entradas
-    return render(render,'entradas.html',{'entradasNuevas'})
+    tarifaSeleccionada = request.POST.get('tarifaSeleccionada')  
+    cantidadDeEntradas = request.POST.get('cantidadDeEntradas')
+    sesion = request.POST.get('sesion')
+    sedeActual = request.POST.get('sedeActual')
+    fechaHoraActual = request.POST.get('fechaHoraActual')
+    empleadoLogueado = request.POST.get('empleadoLogueado')
+    duracion = request.POST.get('duracion')
+    entradasNuevas = generarEntradas(cantidadDeEntradas)
+    if not validarLimiteDeVisitantes(fechaHoraActual,sedeActual): #Si no puede entrar
+        return (render,"Error.html", {}) 
+    exposicionVigente = buscarExposicionVigente(Sede) #no se si lleva como parámetro las tarifas, no se bién cómo funciona el método
+    
+    context = {
+        'empleadoLogueado': empleadoLogueado,
+        'fechaHoraActual': fechaHoraActual,
+        'tarifaSeleccionada': tarifaSeleccionada,
+        'sesion': sesion,
+        'cantidadDeEntradas': cantidadDeEntradas,
+        'duracion': duracion,
+        'exposicionVigente': exposicionVigente,
+        'entradasNuevas':entradasNuevas
+    }
+
+    return render(request, "NuevasEntradas.html", context)
 
 
 def actualizarVisitantesEnPantalla(): #Varios mensajes 

@@ -1,0 +1,42 @@
+{% extends "base.html" %} {% block contenido %}
+<form action="../tomarTarifasSeleccionadas/" method="POST">
+  <!--próximo método de la vista-->
+  {% csrf_token %}
+  <label for="empleadoLogueado">Empleado: </label
+  ><input
+    type="text"
+    name="empleadoLogueado"
+    value="{{empleadoLogueado}}"
+    readonly="True"
+  />
+  <!--input estatico-->
+  <br />
+  <label for="fechaHoraActual">Fecha y hora: </label
+  ><input
+    type="datetime"
+    name="fechaHoraActual"
+    value="{{fechaHoraActual}}"
+    readonly="True"
+  />
+  <br />
+  <input type="hidden" name="sesion" value="{{sesion}}" readonly="True" />
+  <label for="sedeActual">Sede: </label
+  ><input
+    type="text"
+    name="sedeActual"
+    value="{{sedeActual}}"
+    readonly="True"
+  />
+  <br />
+  <label for="tarifaSeleccionada">Tarifas: </label>
+  <select name="tarifaSeleccionada">
+    {% for tarifa in tarifas %}
+    <option value="{{tarifa.monto}}">
+      {{tarifa.tipoDeEntrada.nombre}}-{{tarifa.tipoDeVisita.nombre}}-{{tarifa.monto}}
+    </option>
+    {% endfor %}
+  </select>
+  <br />
+  <input type="submit" value="OK" />
+</form>
+{% endblock contenido %}

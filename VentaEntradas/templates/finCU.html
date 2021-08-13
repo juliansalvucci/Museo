@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block contenido %}
+  <h4>Entradas generadas:</h4>
+{% endblock contenido %}
+
+{% block entradas %}
+{% for entrada in entradasNuevas%}
+<div class="entrada">
+  <p><b>Entrada número:</b> #{{entrada.numero}}</p>
+  <p><b>Fecha:</b> {{entrada.fechaYHoraVenta}}</p>
+  <p><b>Monto individual:</b> ${{entrada.monto}}</p>
+  <p><b>Sede:</b> {{entrada.sede.nombre}}</p>
+  <p>
+    <b>Tarifa:</b> {{entrada.tarifa.tipoDeEntrada.nombre}} -
+    {{entrada.tarifa.tipoDeVisita.nombre}}
+  </p>
+</div>
+{% endfor %}
+{% endblock entradas %}

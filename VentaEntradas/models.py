@@ -25,7 +25,7 @@ class Sesion(models.Model):
     )
     # Obtener el empleado en sesion
 
-    def getEmpleadoEnSesion(self):
+    def getEmpleadoEnSesion(self):   #A traves del usuario, traer el empleado en sesion.
         return self.usuario.getEmpleado()
 
 
@@ -41,7 +41,7 @@ class Usuario(models.Model):
         null=True
     )
 
-    def getEmpleado(self):  # obtener el empleado asociado a ese usuario.
+    def getEmpleado(self):  # obtener el empleado asociado al usuario.
         return self.empleado.getNombre()
 
 
@@ -66,13 +66,13 @@ class Empleado(models.Model):
         null=True
     )
 
-    def getNombre(self):
+    def getNombre(self): #Retornar nombre del empleado.
         return self.nombre
 
-    def getTarifasVigentes(self):
+    def getTarifasVigentes(self):  #Obtener las tarifas correspondientes a la sede donde trabaja ese empleado.
         return self.sede.getTarifasVigentes()
 
-    def getSede(self):
+    def getSede(self):  #Obtener sede asociada al empleado.
         return self.sede.getNombre()
 
     def __str__(self):

@@ -3,7 +3,7 @@ from django.utils.dateparse import parse_datetime
 from VentaEntradas.models import Empleado, Entrada, Exposicion, ReservaVisita, Sede, Sesion, Tarifa
 from django.shortcuts import redirect, render
 from datetime import datetime
-
+from django.contrib import messages
 
 # MÉTODO PRINCIPAL(Inicia línea de vida)
 def registrarNuevaEntrada(request):
@@ -63,7 +63,7 @@ def tomarTarifasSeleccionadas(request):
     cantidadDeEntradas = request.POST.get('cantidadDeEntradas')
 
     # mapeo para evitar objeto type string object method not found
-    sede = Sede.objects.get()
+    sede = Sede.objects.get(nombre=sedeActual)
     duracion = calcularDuracionExposiciones(sede)
 
     context = {
@@ -100,17 +100,16 @@ def tomarCantidadDeEntradasAEmitir(request):
     empleadoLogueado = request.POST.get('empleadoLogueado')
     duracion = request.POST.get('duracion')
     cantidadDeEntradas = int(request.POST.get('cantidadDeEntradas'))
+    
     # Si no puede entrar
-    #try:
-       #if validarLimiteDeVisitantes(fechaHoraActual, sede, cantidadDeEntradas):
-           #return True
-    #except:
-        #return (render, "error.html", {})
-
+   
+    
     if not validarLimiteDeVisitantes(fechaHoraActual, sede, cantidadDeEntradas):
-        return (render, "error.html", {})
+        return render(request,"error.html", {})
+
         #redirect('error')
         #render, "Error.html", {})
+    
     # no se si lleva como parámetro las tarifas, no se bién cómo funciona el método -- No, no lleva las tarifas, lleva solo la sede, según la sede actual sabe que exposiciónes hay, la tarifa es la misma, solo cambia la tarifa segun el tipoReserva, que creo que eso no les toca
     exposicionVigente = buscarExposicionVigente(sede)
     totalVenta = calcularTotalDeVenta(cantidadDeEntradas, tarifaSeleccionada)
@@ -136,7 +135,6 @@ def buscarExposicionVigente(sede):
 # AUXILIARES
 # Verifica el número de entradas vendidas para ese mismo momento y lo compara con la capacidad de la sede.
 
-
 def validarLimiteDeVisitantes(fechaHoraActual, sedeActual, cantidadDeEntradas):
     visitantes = 0
     for entrada in Entrada.objects.all():
@@ -146,6 +144,19 @@ def validarLimiteDeVisitantes(fechaHoraActual, sedeActual, cantidadDeEntradas):
         return True
     else:
         return False
+   
+
+'''''
+def validarLimiteDeVisitantes(fechaHoraActual, sedeActual, cantidadDeEntradas):
+    visitantes = 0
+    for entrada in Entrada.objects.all():
+        if entrada.sonDeFechaYHoraYPerteneceASede(fechaHoraActual):
+            visitantes += 1
+    if visitantes + cantidadDeEntradas <= sedeActual.getCantMaximaDeVistantes():
+        return True
+    else:
+        return False
+'''
 
 '''''
 def buscarVisitantesEnSede(fechaHoraActual, cantidadDeEntradas):

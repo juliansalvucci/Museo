@@ -5,24 +5,24 @@ from django.shortcuts import redirect, render
 from datetime import datetime
 from django.contrib import messages
 
-# MÉTODO PRINCIPAL(Inicia línea de vida)
+# MÉTODO PRINCIPAL 1 (Inicia línea de vida)
 def registrarNuevaEntrada(request):
 
     # Tomo la primera sesión que encuentra el gestor.
     sesion = Sesion.objects.get()
 
-    # obtenemos los datos necesarios ejecutando las funciones subsiguientes.
+    # Obtenemos los datos necesarios ejecutando las funciones subsiguientes.
 
     empleadoLogueado = buscarEmpleadoLogueado(
         sesion)  # nombre del empleado actual
-    # mapear nombre de empleado actual a objeto
+    # Mapear nombre de empleado actual a objeto
     empleadoLogueado = Empleado.objects.get(nombre=empleadoLogueado)
-    # obtener fecha y hora actual del servidor
+    # Obtener fecha y hora actual del servidor
     fechaHoraActual = getFechaHoraActual()
-    sedeActual = empleadoLogueado.getSede()  # obtener el nombre de la sede actual
+    sedeActual = empleadoLogueado.getSede()  # Obtener el nombre de la sede actual
     tarifas = buscarTarifasSedeEmpleado(empleadoLogueado)
 
-    # metemos los datos obtenidos en un diccionario.
+    # Agregar los datos obtenidos en un diccionario.
     context = {
         'empleadoLogueado': empleadoLogueado,
         'fechaHoraActual': fechaHoraActual,
@@ -49,9 +49,8 @@ def getFechaHoraActual():  # Obtener fecha y hora actual
 def buscarTarifasSedeEmpleado(empleadoLogueado):
     return empleadoLogueado.getTarifasVigentes()
 
-# MÉTODO PRINCIPAL
 
-
+# MÉTODO PRINCIPAL 2
 def tomarTarifasSeleccionadas(request):
     # lo primero que hace el método es justamente "tomar tarifa seleccionada"
     tarifaSeleccionada = request.POST.get('tarifaSeleccionada')
@@ -75,19 +74,17 @@ def tomarTarifasSeleccionadas(request):
         'duracion': duracion,
         'cantidadDeEntradas': cantidadDeEntradas
     }
-    # fijate que context envía los datos que calcula (exposicion vigente) y arrastra también todos los datos viejos que vienen de las pantallas anteriores.
+   
 
     return render(request, "solicitarCantidadEntradas.html", context)
 
 # AUXILIAR
-
-
 def calcularDuracionExposiciones(sede):
     duracion = sede.calcularDuracionAExposicionVigente()
     return duracion
 
 
-# MÉTODO PRINCIPAL
+# MÉTODO PRINCIPAL 3
 def tomarCantidadDeEntradasAEmitir(request):
     tarifaSeleccionada = request.POST.get('tarifaSeleccionada')
     sesion = request.POST.get('sesion')
@@ -101,14 +98,11 @@ def tomarCantidadDeEntradasAEmitir(request):
     duracion = request.POST.get('duracion')
     cantidadDeEntradas = int(request.POST.get('cantidadDeEntradas'))
     
-    # Si no puede entrar
-   
-    
+    #FLUJO ALTERNATIVO, EXCESO DE VISITANTES EN SEDE
     if not validarLimiteDeVisitantes(fechaHoraActual, sede, cantidadDeEntradas):
         return render(request,"error.html", {})
 
-        #redirect('error')
-        #render, "Error.html", {})
+       
     
     # no se si lleva como parámetro las tarifas, no se bién cómo funciona el método -- No, no lleva las tarifas, lleva solo la sede, según la sede actual sabe que exposiciónes hay, la tarifa es la misma, solo cambia la tarifa segun el tipoReserva, que creo que eso no les toca
     exposicionVigente = buscarExposicionVigente(sede)
@@ -128,11 +122,11 @@ def tomarCantidadDeEntradasAEmitir(request):
 
     return render(request, "tomarCantidadDeEntradas.html", context)
 
-
+# AUXILIARES
 def buscarExposicionVigente(sede):
     return sede.obtenerExposiciones()
 
-# AUXILIARES
+
 # Verifica el número de entradas vendidas para ese mismo momento y lo compara con la capacidad de la sede.
 
 def validarLimiteDeVisitantes(fechaHoraActual, sedeActual, cantidadDeEntradas):
@@ -145,9 +139,6 @@ def validarLimiteDeVisitantes(fechaHoraActual, sedeActual, cantidadDeEntradas):
     else:
         return False
    
-
-
-
 
 '''''
 def buscarVisitantesEnSede(fechaHoraActual, cantidadDeEntradas):
@@ -173,7 +164,7 @@ def calcularTotalDeVenta(cantidadDeEntradas, tarifaSeleccionada):
     return total
 
 
-# MÉTODO PRINCIPAL
+# MÉTODO PRINCIPAL 4
 def tomarConfirmacionDeVenta(request):
     tarifaSeleccionada = request.POST.get('tarifaSeleccionada')
     cantidadDeEntradas = int(request.POST.get('cantidadDeEntradas'))
@@ -226,7 +217,7 @@ def buscarUltimoNumeroDeEntrada():
 def generarEntradas(cantidadDeEntradas, ultimoNumEntrada, fechaHoraActual, tarifaSeleccionada, sede):  # for para generar
     nuevasEntradas = []
     for x in range(cantidadDeEntradas):
-        entrada = Entrada.objects.create(
+        entrada = Entrada.objects.create(   #CREACIÓN DE NUEVAS ENTRADAS.
             fechaYHoraVenta=fechaHoraActual,
             monto=tarifaSeleccionada,
             numero=ultimoNumEntrada,

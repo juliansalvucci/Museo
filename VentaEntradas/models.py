@@ -3,13 +3,12 @@ from django.db.models.base import Model
 from django.db.models.deletion import SET_NULL
 from django.db.models.fields import CharField, DateField, TimeField
 from django.db.models.fields.related import ForeignKey
-from django.utils.translation import ugettext_lazy as _  # conversión de idiomas
-# trae los usuarios logueados en el sistema.
-from django.contrib.auth.models import User
+from django.utils.translation import ugettext_lazy as _  # conversión de idiomas.
+from django.contrib.auth.models import User # trae los usuarios logueados en el sistema.
 from datetime import date, datetime, timedelta
 from django.utils.dateparse import parse_datetime
 
-
+#SESIÓN
 class Sesion(models.Model):
     fechaInicio = DateField(blank=True, null=True)
     fechaFin = DateField(blank=True, null=True)
@@ -28,7 +27,7 @@ class Sesion(models.Model):
     def getEmpleadoEnSesion(self):   #A traves del usuario, traer el empleado en sesion.
         return self.usuario.getEmpleado()
 
-
+#USUARIO
 class Usuario(models.Model):
     nombreUsuario = CharField(max_length=10)
     contraseña = CharField(max_length=10)
@@ -44,7 +43,7 @@ class Usuario(models.Model):
     def getEmpleado(self):  # obtener el empleado asociado al usuario.
         return self.empleado.getNombre()
 
-
+#EMPLEADO
 class Empleado(models.Model):
     apellido = models.CharField(max_length=200)
     nombre = models.CharField(max_length=200)
@@ -75,11 +74,10 @@ class Empleado(models.Model):
     def getSede(self):  #Obtener sede asociada al empleado.
         return self.sede.getNombre()
 
-    def __str__(self):
+    def __str__(self): #Clase meta.
         return '{}{}'.format(self.apellido, self.nombre)
 
-
-
+#SEDE
 class Sede(models.Model):
     horaApetura = models.TimeField(blank=True, null=True)
     horaCierre = models.TimeField(blank=True, null=True)
@@ -99,7 +97,7 @@ class Sede(models.Model):
                 duracion += exposicion.calcularDuracionDeObrasExpuestas()
         return duracion
 
-    def getCantMaximaDeVistantes(self):
+    def getCantMaximaDeVistantes(self): #Retornar cantidad máxima de visitantes.
         return self.cantMaxVisitantes
 
     def getTarifasVigentes(self):
@@ -116,7 +114,7 @@ class Sede(models.Model):
     def validadCantidadMaximaDeVisitantes(self):
         pass
 
-    def getNombre(self):
+    def getNombre(self): #Obtener nombre de la sede
         return self.nombre
 
     def obtenerExposiciones(self):
@@ -127,7 +125,7 @@ class Sede(models.Model):
                 exposiciones.append(exposicion.getNombre())
         return exposiciones
 
-
+#TARIFA
 class Tarifa(models.Model):
     fechaInicioVigencia = models.DateField()
     fechaFinVigencia = models.DateField()
@@ -161,31 +159,31 @@ class Tarifa(models.Model):
         else:
             return False
 
-    def getMonto(self):
+    def getMonto(self): #Obtener el monto de tarifa.
         return self.monto
 
-    def mostrarDatos(self):  # Obtener el monto de la entrada por tipo de entrada y tipo de visita
+    def mostrarDatos(self):  # Obtener el monto de la entrada por tipo de entrada y tipo de visita.
         montoTarifa = self.monto
         tipoEntrada = self.tipoDeEntrada.getNombre()
         tipoVisita = self.tipoDeVisita.getNombre()
-        # recordar que se invoca a partir de los 3 parámetros
+        # recordar que se invoca a partir de los 3 parámetros.
         return (montoTarifa, tipoEntrada, tipoVisita)
 
-
+#TIPO DE ENTRADA
 class TipoDeEntrada(models.Model):
     nombre = models.CharField(max_length=200)
 
     def getNombre(self):  # Retorna el nombre un tipo de entrada.
         return self.nombre
 
-
+#TIPO DE VISITA
 class TipoDevisita(models.Model):
     nombre = models.CharField(max_length=200)
 
     def getNombre(self):  # Retorna el nombre un tipo de visita.
         return self.nombre
 
-
+#EXPOSICIÓN
 class Exposicion(models.Model):
     fechaFin = models.DateField(blank=True, null=True)
     fechaFinReplanificada = models.DateField(blank=True, null=True)
@@ -204,7 +202,7 @@ class Exposicion(models.Model):
         null=True
     )
 
-    def esVigente(self):
+    def esVigente(self): #Obtener exposiciones vigentes.
         if (self.fechaInicio <= date.today()) and (self.fechaFin > date.today()):
             return True
         else:
@@ -220,7 +218,7 @@ class Exposicion(models.Model):
     def getNombre(self):
         return self.nombre
 
-
+#DETALLE DE EXPOSICIÓN
 class DetalleExposicion(models.Model):
     obra = models.OneToOneField(
         "Obra",
@@ -235,7 +233,7 @@ class DetalleExposicion(models.Model):
     def buscarDuracionResumidaDeObra(self):
         return self.obra.getDuracionResumida()
 
-
+#OBRA
 class Obra(models.Model):
     nombre = models.CharField(
         max_length=200, unique=True, blank=True, null=True)
@@ -259,7 +257,7 @@ class Obra(models.Model):
     def getDuracionResumida(self):
         return self.duracionResumida
 
-
+#ENTRADA
 class Entrada(models.Model):
     fechaYHoraVenta = models.DateTimeField(blank=True, null=True)
     monto = models.DecimalField(
@@ -290,7 +288,7 @@ class Entrada(models.Model):
     def getNumero(self):
         return self.numero
 
-    def sonDeFechaYHoraYPerteneceASede(self, fechaHoraActual):
+    def sonDeFechaYHoraYPerteneceASede(self, fechaHoraActual): #Preguntar si una determinada entradada es simultánea con otras entradas de la sede seleccionada.
         if (self.fechaYHoraVenta.replace(tzinfo=None) <= fechaHoraActual.replace(tzinfo=None)) and (self.fechaYHoraVenta.replace(tzinfo=None) > fechaHoraActual.replace(tzinfo=None)):
             return True
         else:
@@ -302,7 +300,7 @@ class Entrada(models.Model):
     # def __init__(self): #completar parámetros
         #self.numero = 0
 
-
+#RESERVA DE VISITA
 class ReservaVisita(models.Model):
     cantidadAlumnos = models.IntegerField(blank=True, null=True)
     cantidadAlumnosConfirmada = models.IntegerField(blank=True, null=True)
@@ -321,11 +319,11 @@ class ReservaVisita(models.Model):
         null=True
     )
 
-    def sonParaFechaYHoraSede(self, fechaHoraActual):
+    def sonParaFechaYHoraSede(self, fechaHoraActual): #Preguntar si una reserva es coincidente con otras para la misma fecha y hora.
         if (self.horaInicioReal <= fechaHoraActual) and (self.fechaFinReal > fechaHoraActual):
             return True
         else:
             return False
 
-    def getCantidadDeAlumnosConfirmada(self):
+    def getCantidadDeAlumnosConfirmada(self): #Obtener la cantidad de alumnos confirmada.
         return self.cantidadAlumnosConfirmada

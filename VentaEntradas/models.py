@@ -194,8 +194,7 @@ class Exposicion(models.Model):
     horaApertura = models.TimeField(blank=True, null=True)
     horaCierre = models.TimeField(blank=True, null=True)
     nombre = models.CharField(max_length=200, blank=True, null=True)
-    detalleExposicion = models.ManyToManyField(
-        "DetalleExposicion", blank=True, null=True)
+    detalleExposicion = models.ManyToManyField("DetalleExposicion", blank=True, null=True)
     empleado = models.OneToOneField(
         "Empleado",
         verbose_name=_('Empleado'),

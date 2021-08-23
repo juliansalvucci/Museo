@@ -78,7 +78,7 @@ WSGI_APPLICATION = 'Diseño.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'museo2',
+        'NAME': 'museo',
         'USER': 'postgres',
         'PASSWORD': '',
         'HOST': 'localhost',

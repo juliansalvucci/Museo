@@ -1,42 +1,80 @@
-{% extends "base.html" %} {% block contenido %}
-<form action="../tomarTarifasSeleccionadas/" method="POST">
-  <!--próximo método de la vista-->
-  {% csrf_token %}
-  <label for="empleadoLogueado">Empleado: </label
-  ><input
-    type="text"
-    name="empleadoLogueado"
-    value="{{empleadoLogueado}}"
-    readonly="True"
-  />
-  <!--input estatico-->
-  <br/>
-  <label for="fechaHoraActual">Fecha y hora: </label
-  ><input
-    type="datetime"
-    name="fechaHoraActual"
-    value="{{fechaHoraActual}}"
-    readonly="True"
-  />
-  <br/>
-  <input type="hidden" name="sesion" value="{{sesion}}" readonly="True" />
-  <label for="sedeActual">Sede: </label
-  ><input
-    type="text"
-    name="sedeActual"
-    value="{{sedeActual}}"
-    readonly="True"
-  />
-  <br />
-  <label for="tarifaSeleccionada">Tarifas: </label>
-  <select name="tarifaSeleccionada">
-    {% for tarifa in tarifas %}
-    <option value="{{tarifa.monto}}">
-      {{tarifa.tipoDeEntrada.nombre}}-{{tarifa.tipoDeVisita.nombre}}-{{tarifa.monto}}
-    </option>
-    {% endfor %}
-  </select>
-  <br />
-  <input type="submit" value="OK" />
-</form>
-{% endblock contenido %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Quicksand&display=swap"
+			rel="stylesheet"
+		/>
+		<link rel="stylesheet" media="screen" href="/static/main_styles.css" />
+	</head>
+	<body>
+		{% extends "base.html" %} {% block contenido %}
+		<div class="form-header">
+			<h1 class="form-title">S<span>eleccionar tarifa</span></h1>
+		</div>
+		<form action="../tomarTarifasSeleccionadas/" method="POST">
+			{% csrf_token %}
+			<div class="form-content-input">
+				<label for="empleadoLogueado" class="form-label">Empleado</label>
+				<input
+					type="text"
+					name="empleadoLogueado"
+					value="{{empleadoLogueado}}"
+					readonly="True"
+					class="form-input"
+					placeholder="Nombre empleado"
+				/>
+			</div>
+			<div class="form-content-input">
+				<label for="fechaHoraActual" class="form-label">Fecha y hora</label>
+				<input
+					type="datetime"
+					name="fechaHoraActual"
+					value="{{fechaHoraActual}}"
+					readonly="True"
+					class="form-input"
+					placeholder="yyyy/mm/dd"
+				/>
+			</div>
+			<!-- <div class="form-content-input">
+				<label for="sesion" class="form-label">Sesión</label>
+				<input
+					type="text"
+					name="sesion"
+					value="{{sesion}}"
+					readonly="True"
+					class="form-input"
+					placeholder="Nombre usuario"
+					
+				/>
+			</div> -->
+			<div class="form-content-input">
+				<label for="sedeActual" class="form-label">Sede</label>
+				<input
+					type="text"
+					name="sedeActual"
+					value="{{sedeActual}}"
+					readonly="True"
+					class="form-input"
+					placeholder="Nombre sede"
+				/>
+			</div>
+			<div class="form-content-input">
+				<label for="tarifaSeleccionada" class="form-label">Tarifa</label>
+				<select name="tarifaSeleccionada" class="form-input">
+					{% for tarifa in tarifas %}
+					<option value="{{tarifa.monto}}" class="form-label">
+						{{tarifa.tipoDeEntrada.nombre}}-{{tarifa.tipoDeVisita.nombre}}-{{tarifa.monto}}
+					</option>
+					{% endfor %}
+				</select>
+			</div>
+			<input type="submit" class="btn-submit" value="Confirmar" />
+		</form>
+		{% endblock contenido %}
+	</body>
+</html>

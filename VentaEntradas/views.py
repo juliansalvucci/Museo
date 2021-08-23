@@ -146,17 +146,8 @@ def validarLimiteDeVisitantes(fechaHoraActual, sedeActual, cantidadDeEntradas):
         return False
    
 
-'''''
-def validarLimiteDeVisitantes(fechaHoraActual, sedeActual, cantidadDeEntradas):
-    visitantes = 0
-    for entrada in Entrada.objects.all():
-        if entrada.sonDeFechaYHoraYPerteneceASede(fechaHoraActual):
-            visitantes += 1
-    if visitantes + cantidadDeEntradas <= sedeActual.getCantMaximaDeVistantes():
-        return True
-    else:
-        return False
-'''
+
+
 
 '''''
 def buscarVisitantesEnSede(fechaHoraActual, cantidadDeEntradas):

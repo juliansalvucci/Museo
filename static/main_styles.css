@@ -88,22 +88,3 @@ body {
 .btn-submit:focus {
 	background: #b36f12;
 }
-
-p{
-	color: rgb(242, 93, 0);
-	color-scheme: rgb(247, 107, 0);
-	margin-top: 10px;
-	margin-bottom: 10px;
-}
-
-.entrada{
-	margin-top: 30px;
-	margin-bottom: 30px;
-}
-
-h2{
-	color: rgb(242, 93, 0);
-	color-scheme: rgb(247, 107, 0);
-	margin-top: 10px;
-	margin-bottom: 10px;
-}

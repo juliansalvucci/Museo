@@ -1,4 +1,37 @@
-{% extends "base.html" %} {% block contenido %}
-{% csrf_token %}
-<h2>Se ha detectado un exceso de visitantes para la Sede</h2>
-{% endblock contenido %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<title>ERROR</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="stylesheet" media="screen" href="/static/error_styles.css" />
+		<!-- GOOGLE FONTS -->
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Quicksand&display=swap"
+			rel="stylesheet"
+		/>
+		<!-- ICONS FONT AWESOME -->
+		<script
+			src="https://kit.fontawesome.com/392dc687e5.js"
+			crossorigin="anonymous"
+		></script>
+	</head>
+	<body>
+		{% block contenido %} {% csrf_token %}
+		<div class="container">
+			<div class="container-img">
+				<i class="icon fas fa-exclamation"></i>
+			</div>
+			<div class="container-msg">
+				<h3>Error!</h3>
+				<p class="label">
+					Se ha detectado un exceso de visitantes para la Sede
+				</p>
+			</div>
+		</div>
+		{% endblock contenido %}
+	</body>
+</html>

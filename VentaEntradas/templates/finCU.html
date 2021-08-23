@@ -1,19 +1,41 @@
-{% extends "base.html" %}
-{% block contenido %}
-  <h2>Entradas generadas:</h2>
-{% endblock contenido %}
-
-{% block entradas %}
-{% for entrada in entradasNuevas%}
-<div class="entrada">
-  <p><b>Entrada número:</b> #{{entrada.numero}}</p>
-  <p><b>Fecha:</b> {{entrada.fechaYHoraVenta}}</p>
-  <p><b>Monto individual:</b> ${{entrada.monto}}</p>
-  <p><b>Sede:</b> {{entrada.sede.nombre}}</p>
-  <p>
-    <b>Tarifa:</b> {{entrada.tarifa.tipoDeEntrada.nombre}} -
-    {{entrada.tarifa.tipoDeVisita.nombre}}
-  </p>
-</div>
-{% endfor %}
-{% endblock entradas %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<title>Entradas</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="stylesheet" media="screen" href="/static/ticket_styles.css" />
+		<!-- GOOGLE FONTS -->
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Quicksand&display=swap"
+			rel="stylesheet"
+		/>
+	</head>
+	<body>
+		<div class="container">
+			<div class="title">
+				{% block contenido %} E<span>ntradas generadas</span>
+				{% endblock contenido %}
+			</div>
+			{% block entradas %} {% for entrada in entradasNuevas%}
+			<div class="ticket">
+				<div class="ticket__head">
+					<p>Entrada número #{{entrada.numero}}</p>
+				</div>
+				<div class="ticket__body">
+					<p><span>Fecha:</span> {{entrada.fechaYHoraVenta}}</p>
+					<p><span>Monto individual:</span> ${{entrada.monto}}</p>
+					<p><span>Sede:</span> {{entrada.sede.nombre}}</p>
+					<p>
+						<span>Tarifa:</span> {{entrada.tarifa.tipoDeEntrada.nombre}} -
+						{{entrada.tarifa.tipoDeVisita.nombre}}
+					</p>
+				</div>
+			</div>
+			{% endfor %} {% endblock entradas %}
+		</div>
+	</body>
+</html>

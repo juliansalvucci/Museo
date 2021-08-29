@@ -74,8 +74,6 @@ def tomarTarifasSeleccionadas(request):
         'duracion': duracion,
         'cantidadDeEntradas': cantidadDeEntradas
     }
-   
-
     return render(request, "solicitarCantidadEntradas.html", context)
 
 # AUXILIAR
@@ -149,7 +147,6 @@ def buscarVisitantesEnSede(fechaHoraActual, cantidadDeEntradas):
     return visitantes + cantidadDeEntradas
 '''''
 
-
 # Recorrer todas las intancias de reverva y preguntarles si son para fecha y hora sede.
 def buscarReservaParaAsistir():
     reservas = []
@@ -159,7 +156,7 @@ def buscarReservaParaAsistir():
     return reservas
 
 
-def calcularTotalDeVenta(cantidadDeEntradas, tarifaSeleccionada):
+def calcularTotalDeVenta(cantidadDeEntradas, tarifaSeleccionada): #Calcular el monto total de venta.
     total = int(cantidadDeEntradas) * float(tarifaSeleccionada)
     return total
 
@@ -169,15 +166,15 @@ def tomarConfirmacionDeVenta(request):
     tarifaSeleccionada = request.POST.get('tarifaSeleccionada')
     cantidadDeEntradas = int(request.POST.get('cantidadDeEntradas'))
     sedeActual = request.POST.get('sedeActual')
-    # mapear sede seleccionada a objeto
+    # mapear sede seleccionada a objeto.
     sede = Sede.objects.get(nombre=sedeActual)
     fechaHoraActual = request.POST.get('fechaHoraActual')
     fechaHoraActual = fechaHoraActual.replace(".", "")
     fechaHoraActual = datetime.strptime(
-        fechaHoraActual, '%b %d, %Y, %I:%M %p')  # parsear string a datetime
+        fechaHoraActual, '%b %d, %Y, %I:%M %p')  # parsear string a datetime.
     
 
-    # Valores anteriores que no se usan en la generación de la entrada: (se usan solo para imprimir la pantalla final, pero no son necesarios en el crearEntradas())
+    # Valores anteriores que no se usan en la generación de la entrada: (se usan solo para imprimir la pantalla final, pero no son necesarios en el crearEntradas()).
     sesion = request.POST.get('sesion')
     empleadoLogueado = request.POST.get('empleadoLogueado')
     duracion = request.POST.get('duracion')
@@ -186,7 +183,7 @@ def tomarConfirmacionDeVenta(request):
    
 
 
-    # obtener el nuevo numero entrada
+    # obtener el nuevo numero entrada.
     ultimoNumEntrada = buscarUltimoNumeroDeEntrada()
     ultimoNumEntrada += 1
     entradasNuevas = generarEntradas(
@@ -197,7 +194,6 @@ def tomarConfirmacionDeVenta(request):
     context = {
         'entradasNuevas': entradasNuevas,
     }
-
     return render(request, "finCU.html", context)
 
 # AUXILIARES
@@ -214,7 +210,7 @@ def buscarUltimoNumeroDeEntrada():
     return nuevoNumero
 
 
-def generarEntradas(cantidadDeEntradas, ultimoNumEntrada, fechaHoraActual, tarifaSeleccionada, sede):  # for para generar
+def generarEntradas(cantidadDeEntradas, ultimoNumEntrada, fechaHoraActual, tarifaSeleccionada, sede):  # for para generar entradas.
     nuevasEntradas = []
     for x in range(cantidadDeEntradas):
         entrada = Entrada.objects.create(   #CREACIÓN DE NUEVAS ENTRADAS.

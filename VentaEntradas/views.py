@@ -5,6 +5,7 @@ from django.shortcuts import redirect, render
 from datetime import datetime
 from django.contrib import messages
 
+
 # MÉTODO PRINCIPAL 1 (Inicia línea de vida)
 def registrarNuevaEntrada(request):
 

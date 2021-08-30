@@ -4,7 +4,7 @@ from . import views
 app_name = 'VentaEntradas'
 
 urlpatterns = [
-    path('registrarNuevaEntrada/', views.registrarNuevaEntrada),
+    path('', views.registrarNuevaEntrada),
     path('buscarEmpleadoLogueado/', views.buscarEmpleadoLogueado),
     path('getFechaHoraActual/', views.getFechaHoraActual),
     path('buscarTarifasSedeEmpleado/', views.buscarTarifasSedeEmpleado),
